@@ -122,8 +122,7 @@ namespace CourseWork
             {
                 conn.Open();
 
-                var selectCmd = new SQLiteCommand(
-                    "SELECT * FROM [Данные] ORDER BY Эпоха", conn);
+                var selectCmd = new SQLiteCommand("SELECT * FROM [Данные] ORDER BY Эпоха", conn);
 
                 var adapter = new SQLiteDataAdapter(selectCmd);
                 var sourceDt = new DataTable();
@@ -147,13 +146,9 @@ namespace CourseWork
                         double s;
 
                         if (firstRow)
-                        {
                             s = x;
-                        }
                         else
-                        {
                             s = alpha * x + (1 - alpha) * prevValues[i - 1];
-                        }
 
                         prevValues[i - 1] = s;
                         row[col] = s;
@@ -165,13 +160,13 @@ namespace CourseWork
                 foreach (DataRow row in resultDt.Rows)
                 {
                     var update = new SQLiteCommand(@"
-                UPDATE [Координаты Z контрольных точек]
-                SET 
-                    [1]=@c1,[2]=@c2,[3]=@c3,[4]=@c4,[5]=@c5,
-                    [6]=@c6,[7]=@c7,[8]=@c8,[9]=@c9,[10]=@c10,
-                    [11]=@c11,[12]=@c12,[13]=@c13,[14]=@c14,[15]=@c15,
-                    [16]=@c16,[17]=@c17,[18]=@c18,[19]=@c19,[20]=@c20
-                WHERE Эпоха=@epoch", conn);
+UPDATE [Координаты Z контрольных точек]
+SET 
+[1]=@c1,[2]=@c2,[3]=@c3,[4]=@c4,[5]=@c5,
+[6]=@c6,[7]=@c7,[8]=@c8,[9]=@c9,[10]=@c10,
+[11]=@c11,[12]=@c12,[13]=@c13,[14]=@c14,[15]=@c15,
+[16]=@c16,[17]=@c17,[18]=@c18,[19]=@c19,[20]=@c20
+WHERE Эпоха=@epoch", conn);
 
                     update.Parameters.AddWithValue("@epoch", row["Эпоха"]);
 
@@ -185,41 +180,29 @@ namespace CourseWork
 
         private void RecalculatePhase()
         {
-            double alpha = prevA;
-            double beta = 0.2;
             double E = prevE;
 
             using (var conn = GetConnection())
             {
                 conn.Open();
 
-                var cmd = new SQLiteCommand(
-                    "SELECT * FROM [Координаты Z контрольных точек] ORDER BY Эпоха", conn);
+                var cmd = new SQLiteCommand("SELECT * FROM [Координаты Z контрольных точек] ORDER BY Эпоха", conn);
 
                 var adapter = new SQLiteDataAdapter(cmd);
                 var dt = new DataTable();
                 adapter.Fill(dt);
 
                 DataTable phase = new DataTable();
-
                 phase.Columns.Add("Цикл");
-
-                // µ
                 phase.Columns.Add("µ(t)");
                 phase.Columns.Add("µ(t)-");
                 phase.Columns.Add("µ(t)+");
-
-                // a
                 phase.Columns.Add("a(µ)");
                 phase.Columns.Add("a(µ)-");
                 phase.Columns.Add("a(µ)+");
-
-                // прогноз µ
                 phase.Columns.Add("µ прогноз");
                 phase.Columns.Add("µ прогноз-");
                 phase.Columns.Add("µ прогноз+");
-
-                // прогноз a
                 phase.Columns.Add("a прогноз");
                 phase.Columns.Add("a прогноз-");
                 phase.Columns.Add("a прогноз+");
@@ -230,81 +213,58 @@ namespace CourseWork
                 monitor.Columns.Add("L");
                 monitor.Columns.Add("Состояние");
 
+                double[] prevVector = new double[20];
                 double prevMu = 0;
-                double prevTrend = 0;
-
                 bool first = true;
                 int cycle = 0;
 
                 foreach (DataRow row in dt.Rows)
                 {
-                    // ===== 1. АГРЕГАЦИЯ 20 ТОЧЕК =====
-                    double sum = 0;
-                    int count = 0;
+                    double[] vector = new double[20];
 
                     for (int i = 1; i <= 20; i++)
                     {
-                        string col = i.ToString();
-                        if (row[col] == DBNull.Value) continue;
-
-                        sum += Convert.ToDouble(row[col]);
-                        count++;
+                        object val = row[i.ToString()];
+                        vector[i - 1] = val == DBNull.Value ? 0.0 : Convert.ToDouble(val);
                     }
 
-                    if (count == 0) continue;
+                    double mu = 0;
 
-                    double x = sum / count;
+                    for (int i = 0; i < 20; i++)
+                        mu += vector[i] * vector[i];
 
-                    // ===== 2. ФАЗОВАЯ МОДЕЛЬ =====
-                    double mu, trend;
+                    mu = Math.Sqrt(mu);
 
-                    if (first)
-                    {
-                        mu = x;
-                        trend = 0;
-                    }
-                    else
-                    {
-                        mu = alpha * x + (1 - alpha) * (prevMu + prevTrend);
-                        trend = beta * (mu - prevMu) + (1 - beta) * prevTrend;
-                    }
+                    double a = first ? 0 : (mu - prevMu);
 
-                    // ===== 3. ПРОГНОЗ =====
-                    double muForecast = mu + trend;
-                    double aForecast = trend;
+                    double muForecast = mu + a;
+                    double aForecast = a;
 
-                    // ===== 4. ГРАНИЦЫ =====
                     double muMinus = mu - E;
                     double muPlus = mu + E;
 
-                    double aMinus = trend - E;
-                    double aPlus = trend + E;
+                    double aMinus = a - E;
+                    double aPlus = a + E;
 
-                    // ===== 5. ЗАПИСЬ =====
                     var pr = phase.NewRow();
 
                     pr["Цикл"] = cycle;
-
                     pr["µ(t)"] = mu;
                     pr["µ(t)-"] = muMinus;
                     pr["µ(t)+"] = muPlus;
-
-                    pr["a(µ)"] = trend;
+                    pr["a(µ)"] = a;
                     pr["a(µ)-"] = aMinus;
                     pr["a(µ)+"] = aPlus;
-
                     pr["µ прогноз"] = muForecast;
                     pr["µ прогноз-"] = muForecast - E;
                     pr["µ прогноз+"] = muForecast + E;
-
                     pr["a прогноз"] = aForecast;
                     pr["a прогноз-"] = aForecast - E;
                     pr["a прогноз+"] = aForecast + E;
 
                     phase.Rows.Add(pr);
 
-                    // ===== 6. МОНИТОРИНГ =====
-                    double R = Math.Abs(x - muForecast);
+                    double R = Math.Abs(mu - muForecast);
 
                     string state =
                         R < E ? "Норма" :
@@ -320,7 +280,8 @@ namespace CourseWork
                     monitor.Rows.Add(mr);
 
                     prevMu = mu;
-                    prevTrend = trend;
+                    Array.Copy(vector, prevVector, 20);
+
                     first = false;
                     cycle++;
                 }
