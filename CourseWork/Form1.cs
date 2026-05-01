@@ -178,120 +178,7 @@ WHERE Эпоха=@epoch", conn);
             }
         }
 
-        private void RecalculatePhase()
-        {
-            double E = prevE;
-
-            using (var conn = GetConnection())
-            {
-                conn.Open();
-
-                var cmd = new SQLiteCommand("SELECT * FROM [Координаты Z контрольных точек] ORDER BY Эпоха", conn);
-
-                var adapter = new SQLiteDataAdapter(cmd);
-                var dt = new DataTable();
-                adapter.Fill(dt);
-
-                DataTable phase = new DataTable();
-                phase.Columns.Add("Цикл");
-                phase.Columns.Add("µ(t)");
-                phase.Columns.Add("µ(t)-");
-                phase.Columns.Add("µ(t)+");
-                phase.Columns.Add("a(µ)");
-                phase.Columns.Add("a(µ)-");
-                phase.Columns.Add("a(µ)+");
-                phase.Columns.Add("µ прогноз");
-                phase.Columns.Add("µ прогноз-");
-                phase.Columns.Add("µ прогноз+");
-                phase.Columns.Add("a прогноз");
-                phase.Columns.Add("a прогноз-");
-                phase.Columns.Add("a прогноз+");
-
-                DataTable monitor = new DataTable();
-                monitor.Columns.Add("Цикл");
-                monitor.Columns.Add("R");
-                monitor.Columns.Add("L");
-                monitor.Columns.Add("Состояние");
-
-                double[] prevVector = new double[20];
-                double prevMu = 0;
-                bool first = true;
-                int cycle = 0;
-
-                foreach (DataRow row in dt.Rows)
-                {
-                    double[] vector = new double[20];
-
-                    for (int i = 1; i <= 20; i++)
-                    {
-                        object val = row[i.ToString()];
-                        vector[i - 1] = val == DBNull.Value ? 0.0 : Convert.ToDouble(val);
-                    }
-
-                    double mu = 0;
-
-                    for (int i = 0; i < 20; i++)
-                        mu += vector[i] * vector[i];
-
-                    mu = Math.Sqrt(mu);
-
-                    double a = first ? 0 : (mu - prevMu);
-
-                    double muForecast = mu + a;
-                    double aForecast = a;
-
-                    double muMinus = mu - E;
-                    double muPlus = mu + E;
-
-                    double aMinus = a - E;
-                    double aPlus = a + E;
-
-                    var pr = phase.NewRow();
-
-                    pr["Цикл"] = cycle;
-                    pr["µ(t)"] = mu;
-                    pr["µ(t)-"] = muMinus;
-                    pr["µ(t)+"] = muPlus;
-                    pr["a(µ)"] = a;
-                    pr["a(µ)-"] = aMinus;
-                    pr["a(µ)+"] = aPlus;
-                    pr["µ прогноз"] = muForecast;
-                    pr["µ прогноз-"] = muForecast - E;
-                    pr["µ прогноз+"] = muForecast + E;
-                    pr["a прогноз"] = aForecast;
-                    pr["a прогноз-"] = aForecast - E;
-                    pr["a прогноз+"] = aForecast + E;
-
-                    phase.Rows.Add(pr);
-
-                    double R = Math.Abs(mu - muForecast);
-
-                    string state =
-                        R < E ? "Норма" :
-                        R < 2 * E ? "Предупреждение" :
-                        "Авария";
-
-                    var mr = monitor.NewRow();
-                    mr["Цикл"] = cycle;
-                    mr["R"] = R;
-                    mr["L"] = E;
-                    mr["Состояние"] = state;
-
-                    monitor.Rows.Add(mr);
-
-                    prevMu = mu;
-                    Array.Copy(vector, prevVector, 20);
-
-                    first = false;
-                    cycle++;
-                }
-
-                dataGridViewPhase.DataSource = phase;
-                dataGridViewСonditionMonitoring.DataSource = monitor;
-
-                UpdatePhaseChart();
-            }
-        }
+        private void RecalculatePhase() { double alpha = prevA; double beta = 0.2; double E = prevE; using (var conn = GetConnection()) { conn.Open(); var cmd = new SQLiteCommand("SELECT * FROM [Координаты Z контрольных точек] ORDER BY Эпоха", conn); var adapter = new SQLiteDataAdapter(cmd); var dt = new DataTable(); adapter.Fill(dt); DataTable phase = new DataTable(); phase.Columns.Add("Цикл"); phase.Columns.Add("µ(t)"); phase.Columns.Add("µ(t)-"); phase.Columns.Add("µ(t)+"); phase.Columns.Add("a(µ)"); phase.Columns.Add("a(µ)-"); phase.Columns.Add("a(µ)+"); phase.Columns.Add("µ прогноз"); phase.Columns.Add("µ прогноз-"); phase.Columns.Add("µ прогноз+"); phase.Columns.Add("a прогноз"); phase.Columns.Add("a прогноз-"); phase.Columns.Add("a прогноз+"); DataTable monitor = new DataTable(); monitor.Columns.Add("Цикл"); monitor.Columns.Add("R"); monitor.Columns.Add("L"); monitor.Columns.Add("Состояние"); double prevMu = 0; double prevTrend = 0; bool first = true; int cycle = 0; foreach (DataRow row in dt.Rows) { for (int i = 1; i <= 20; i++) { string col = i.ToString(); if (row[col] == DBNull.Value) continue; double x = Convert.ToDouble(row[col]); double mu, trend; if (first) { mu = x; trend = 0; } else { mu = alpha * x + (1 - alpha) * (prevMu + prevTrend); trend = beta * (mu - prevMu) + (1 - beta) * prevTrend; } double muForecast = mu + trend; double aForecast = trend; double muMinus = mu - E; double muPlus = mu + E; double aMinus = trend - E; double aPlus = trend + E; var pr = phase.NewRow(); pr["Цикл"] = cycle++; pr["µ(t)"] = mu; pr["µ(t)-"] = muMinus; pr["µ(t)+"] = muPlus; pr["a(µ)"] = trend; pr["a(µ)-"] = aMinus; pr["a(µ)+"] = aPlus; pr["µ прогноз"] = muForecast; pr["µ прогноз-"] = muForecast - E; pr["µ прогноз+"] = muForecast + E; pr["a прогноз"] = aForecast; pr["a прогноз-"] = aForecast - E; pr["a прогноз+"] = aForecast + E; phase.Rows.Add(pr); double R = Math.Abs(x - muForecast); string state = R < E ? "Норма" : R < 2 * E ? "Предупреждение" : "Авария"; var mr = monitor.NewRow(); mr["Цикл"] = cycle; mr["R"] = R; mr["L"] = E; mr["Состояние"] = state; monitor.Rows.Add(mr); prevMu = mu; prevTrend = trend; first = false; } } dataGridViewPhase.DataSource = phase; dataGridViewСonditionMonitoring.DataSource = monitor; UpdatePhaseChart(); } }
 
         private void apply_Click(object sender, EventArgs e)
         {
@@ -324,7 +211,7 @@ WHERE Эпоха=@epoch", conn);
                 {
                     conn.Open();
 
-                    using (var transaction = conn.BeginTransaction()) 
+                    using (var transaction = conn.BeginTransaction())
                     {
                         var cmd = new SQLiteCommand(
                             "UPDATE Значения SET A=@A, E=@E", conn);
