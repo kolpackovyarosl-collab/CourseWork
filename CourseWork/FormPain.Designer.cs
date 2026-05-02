@@ -1,6 +1,6 @@
 ﻿namespace CourseWork
 {
-    partial class Form1
+    partial class FormPain
     {
         /// <summary>
         /// Обязательная переменная конструктора.
@@ -28,18 +28,18 @@
         /// </summary>
         private void InitializeComponent()
         {
-            System.Windows.Forms.DataVisualization.Charting.ChartArea chartArea29 = new System.Windows.Forms.DataVisualization.Charting.ChartArea();
-            System.Windows.Forms.DataVisualization.Charting.Legend legend29 = new System.Windows.Forms.DataVisualization.Charting.Legend();
-            System.Windows.Forms.DataVisualization.Charting.Series series29 = new System.Windows.Forms.DataVisualization.Charting.Series();
-            System.Windows.Forms.DataVisualization.Charting.ChartArea chartArea30 = new System.Windows.Forms.DataVisualization.Charting.ChartArea();
-            System.Windows.Forms.DataVisualization.Charting.Legend legend30 = new System.Windows.Forms.DataVisualization.Charting.Legend();
-            System.Windows.Forms.DataVisualization.Charting.Series series30 = new System.Windows.Forms.DataVisualization.Charting.Series();
-            System.Windows.Forms.DataVisualization.Charting.ChartArea chartArea31 = new System.Windows.Forms.DataVisualization.Charting.ChartArea();
-            System.Windows.Forms.DataVisualization.Charting.Legend legend31 = new System.Windows.Forms.DataVisualization.Charting.Legend();
-            System.Windows.Forms.DataVisualization.Charting.Series series31 = new System.Windows.Forms.DataVisualization.Charting.Series();
-            System.Windows.Forms.DataVisualization.Charting.ChartArea chartArea32 = new System.Windows.Forms.DataVisualization.Charting.ChartArea();
-            System.Windows.Forms.DataVisualization.Charting.Legend legend32 = new System.Windows.Forms.DataVisualization.Charting.Legend();
-            System.Windows.Forms.DataVisualization.Charting.Series series32 = new System.Windows.Forms.DataVisualization.Charting.Series();
+            System.Windows.Forms.DataVisualization.Charting.ChartArea chartArea22 = new System.Windows.Forms.DataVisualization.Charting.ChartArea();
+            System.Windows.Forms.DataVisualization.Charting.Legend legend22 = new System.Windows.Forms.DataVisualization.Charting.Legend();
+            System.Windows.Forms.DataVisualization.Charting.Series series22 = new System.Windows.Forms.DataVisualization.Charting.Series();
+            System.Windows.Forms.DataVisualization.Charting.ChartArea chartArea21 = new System.Windows.Forms.DataVisualization.Charting.ChartArea();
+            System.Windows.Forms.DataVisualization.Charting.Legend legend21 = new System.Windows.Forms.DataVisualization.Charting.Legend();
+            System.Windows.Forms.DataVisualization.Charting.Series series21 = new System.Windows.Forms.DataVisualization.Charting.Series();
+            System.Windows.Forms.DataVisualization.Charting.ChartArea chartArea23 = new System.Windows.Forms.DataVisualization.Charting.ChartArea();
+            System.Windows.Forms.DataVisualization.Charting.Legend legend23 = new System.Windows.Forms.DataVisualization.Charting.Legend();
+            System.Windows.Forms.DataVisualization.Charting.Series series23 = new System.Windows.Forms.DataVisualization.Charting.Series();
+            System.Windows.Forms.DataVisualization.Charting.ChartArea chartArea24 = new System.Windows.Forms.DataVisualization.Charting.ChartArea();
+            System.Windows.Forms.DataVisualization.Charting.Legend legend24 = new System.Windows.Forms.DataVisualization.Charting.Legend();
+            System.Windows.Forms.DataVisualization.Charting.Series series24 = new System.Windows.Forms.DataVisualization.Charting.Series();
             this.label1 = new System.Windows.Forms.Label();
             this.tabSecond = new System.Windows.Forms.TabPage();
             this.tabControl2 = new System.Windows.Forms.TabControl();
@@ -391,6 +391,7 @@
             // dataGridView2
             // 
             this.dataGridView2.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
+            this.dataGridView2.GridColor = System.Drawing.SystemColors.ActiveCaptionText;
             this.dataGridView2.Location = new System.Drawing.Point(15, 250);
             this.dataGridView2.Name = "dataGridView2";
             this.dataGridView2.Size = new System.Drawing.Size(256, 150);
@@ -409,6 +410,7 @@
             // dataGridView3
             // 
             this.dataGridView3.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
+            this.dataGridView3.GridColor = System.Drawing.SystemColors.ActiveCaptionText;
             this.dataGridView3.Location = new System.Drawing.Point(15, 81);
             this.dataGridView3.Name = "dataGridView3";
             this.dataGridView3.Size = new System.Drawing.Size(256, 150);
@@ -548,16 +550,16 @@
             // 
             // chartA
             // 
-            chartArea29.Name = "ChartArea1";
-            this.chartA.ChartAreas.Add(chartArea29);
-            legend29.Name = "Legend1";
-            this.chartA.Legends.Add(legend29);
+            chartArea22.Name = "ChartArea1";
+            this.chartA.ChartAreas.Add(chartArea22);
+            legend22.Name = "Legend1";
+            this.chartA.Legends.Add(legend22);
             this.chartA.Location = new System.Drawing.Point(6, 6);
             this.chartA.Name = "chartA";
-            series29.ChartArea = "ChartArea1";
-            series29.Legend = "Legend1";
-            series29.Name = "Series1";
-            this.chartA.Series.Add(series29);
+            series22.ChartArea = "ChartArea1";
+            series22.Legend = "Legend1";
+            series22.Name = "Series1";
+            this.chartA.Series.Add(series22);
             this.chartA.Size = new System.Drawing.Size(552, 221);
             this.chartA.TabIndex = 9;
             this.chartA.Text = "chart1";
@@ -591,6 +593,7 @@
             this.checkBoxFPlimitForecast.TabIndex = 29;
             this.checkBoxFPlimitForecast.Text = "Прогноз µ(t)+";
             this.checkBoxFPlimitForecast.UseVisualStyleBackColor = true;
+            this.checkBoxFPlimitForecast.CheckedChanged += new System.EventHandler(this.checkBoxFPlimitForecast_CheckedChanged);
             // 
             // checkBoxFlimitForecast
             // 
@@ -602,6 +605,7 @@
             this.checkBoxFlimitForecast.TabIndex = 28;
             this.checkBoxFlimitForecast.Text = "Прогноз µ(t)";
             this.checkBoxFlimitForecast.UseVisualStyleBackColor = true;
+            this.checkBoxFlimitForecast.CheckedChanged += new System.EventHandler(this.checkBoxFlimitForecast_CheckedChanged);
             // 
             // checkBoxFMlimitForecast
             // 
@@ -613,6 +617,7 @@
             this.checkBoxFMlimitForecast.TabIndex = 27;
             this.checkBoxFMlimitForecast.Text = "Прогноз µ(t)-";
             this.checkBoxFMlimitForecast.UseVisualStyleBackColor = true;
+            this.checkBoxFMlimitForecast.CheckedChanged += new System.EventHandler(this.checkBoxFMlimitForecast_CheckedChanged);
             // 
             // checkBoxFPlimit
             // 
@@ -624,6 +629,7 @@
             this.checkBoxFPlimit.TabIndex = 26;
             this.checkBoxFPlimit.Text = "µ(t)+";
             this.checkBoxFPlimit.UseVisualStyleBackColor = true;
+            this.checkBoxFPlimit.CheckedChanged += new System.EventHandler(this.checkBoxFPlimit_CheckedChanged);
             // 
             // checkBoxFlimit
             // 
@@ -635,6 +641,7 @@
             this.checkBoxFlimit.TabIndex = 25;
             this.checkBoxFlimit.Text = "µ(t)";
             this.checkBoxFlimit.UseVisualStyleBackColor = true;
+            this.checkBoxFlimit.CheckedChanged += new System.EventHandler(this.checkBoxFlimit_CheckedChanged);
             // 
             // checkBoxFMlimit
             // 
@@ -646,6 +653,7 @@
             this.checkBoxFMlimit.TabIndex = 24;
             this.checkBoxFMlimit.Text = "µ(t)-";
             this.checkBoxFMlimit.UseVisualStyleBackColor = true;
+            this.checkBoxFMlimit.CheckedChanged += new System.EventHandler(this.checkBoxFMlimit_CheckedChanged);
             // 
             // buttonClearAllSecond2
             // 
@@ -670,16 +678,16 @@
             // 
             // chartF
             // 
-            chartArea30.Name = "ChartArea1";
-            this.chartF.ChartAreas.Add(chartArea30);
-            legend30.Name = "Legend1";
-            this.chartF.Legends.Add(legend30);
+            chartArea21.Name = "ChartArea1";
+            this.chartF.ChartAreas.Add(chartArea21);
+            legend21.Name = "Legend1";
+            this.chartF.Legends.Add(legend21);
             this.chartF.Location = new System.Drawing.Point(3, 3);
             this.chartF.Name = "chartF";
-            series30.ChartArea = "ChartArea1";
-            series30.Legend = "Legend1";
-            series30.Name = "Series1";
-            this.chartF.Series.Add(series30);
+            series21.ChartArea = "ChartArea1";
+            series21.Legend = "Legend1";
+            series21.Name = "Series1";
+            this.chartF.Series.Add(series21);
             this.chartF.Size = new System.Drawing.Size(558, 221);
             this.chartF.TabIndex = 21;
             this.chartF.Text = "chart1";
@@ -896,16 +904,16 @@
             // 
             // chartPhase
             // 
-            chartArea31.Name = "ChartArea1";
-            this.chartPhase.ChartAreas.Add(chartArea31);
-            legend31.Name = "Legend1";
-            this.chartPhase.Legends.Add(legend31);
+            chartArea23.Name = "ChartArea1";
+            this.chartPhase.ChartAreas.Add(chartArea23);
+            legend23.Name = "Legend1";
+            this.chartPhase.Legends.Add(legend23);
             this.chartPhase.Location = new System.Drawing.Point(6, 6);
             this.chartPhase.Name = "chartPhase";
-            series31.ChartArea = "ChartArea1";
-            series31.Legend = "Legend1";
-            series31.Name = "Series1";
-            this.chartPhase.Series.Add(series31);
+            series23.ChartArea = "ChartArea1";
+            series23.Legend = "Legend1";
+            series23.Name = "Series1";
+            this.chartPhase.Series.Add(series23);
             this.chartPhase.Size = new System.Drawing.Size(565, 221);
             this.chartPhase.TabIndex = 0;
             this.chartPhase.Text = "chart1";
@@ -1046,16 +1054,16 @@
             // 
             // chartFunc
             // 
-            chartArea32.Name = "ChartArea1";
-            this.chartFunc.ChartAreas.Add(chartArea32);
-            legend32.Name = "Legend1";
-            this.chartFunc.Legends.Add(legend32);
+            chartArea24.Name = "ChartArea1";
+            this.chartFunc.ChartAreas.Add(chartArea24);
+            legend24.Name = "Legend1";
+            this.chartFunc.Legends.Add(legend24);
             this.chartFunc.Location = new System.Drawing.Point(6, 6);
             this.chartFunc.Name = "chartFunc";
-            series32.ChartArea = "ChartArea1";
-            series32.Legend = "Legend1";
-            series32.Name = "Series1";
-            this.chartFunc.Series.Add(series32);
+            series24.ChartArea = "ChartArea1";
+            series24.Legend = "Legend1";
+            series24.Name = "Series1";
+            this.chartFunc.Series.Add(series24);
             this.chartFunc.Size = new System.Drawing.Size(565, 221);
             this.chartFunc.TabIndex = 12;
             this.chartFunc.Text = "chart1";
@@ -1267,14 +1275,14 @@
             this.tabControl.Size = new System.Drawing.Size(901, 494);
             this.tabControl.TabIndex = 0;
             // 
-            // Form1
+            // FormPain
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(916, 511);
             this.Controls.Add(this.tabControl);
             this.Controls.Add(this.label1);
-            this.Name = "Form1";
+            this.Name = "FormPain";
             this.Text = "Автоматизированная система мониторинга пространственно-временого сосояния техноге" +
     "нного объекта";
             this.tabSecond.ResumeLayout(false);

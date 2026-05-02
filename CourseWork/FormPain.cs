@@ -9,7 +9,7 @@ using System.Windows.Forms;
 
 namespace CourseWork
 {
-    public partial class Form1 : Form
+    public partial class FormPain : Form
     {
         private string dbPath;
         private readonly Random random = new Random();
@@ -22,7 +22,7 @@ namespace CourseWork
 
         private string currentBlock = "";
 
-        public Form1()
+        public FormPain()
         {
             InitializeComponent();
         }
@@ -589,13 +589,15 @@ namespace CourseWork
 
                         double x = Convert.ToDouble(row[col]);
 
-                        double mu = prevMu.ContainsKey(col)
-                            ? alpha * x + (1 - alpha) * prevMu[col]
-                            : x;
+                        double prevMuVal = prevMu.ContainsKey(col) ? prevMu[col] : x;
+                        double prevAVal = prevA.ContainsKey(col) ? prevA[col] : 0;
 
-                        double a = prevA.ContainsKey(col)
-                            ? beta * (mu - prevMu[col])
-                            : 0;
+                        double mu = alpha * x + (1 - alpha) * prevMuVal;
+
+                        double a = beta * (mu - prevMuVal);
+
+                        prevMu[col] = mu;
+                        prevA[col] = a;
 
                         prevMu[col] = mu;
                         prevA[col] = a;
@@ -714,6 +716,200 @@ namespace CourseWork
             AddFuncSeries(checkBoxMuTForecast, "µ прогноз", dt, true);
             AddFuncSeries(checkBoxMuTmForecast, "µ прогноз-", dt, true);
             AddFuncSeries(checkBoxMuTpForecast, "µ прогноз+", dt, true);
+        }
+
+        private void RefreshPhaseChartA()
+        {
+            chartA.Series.Clear();
+
+            if (dataGridViewPhase.DataSource == null)
+                return;
+
+            var dt = (DataTable)dataGridViewPhase.DataSource;
+
+            DrawPhaseSeriesA(checkBoxAMlimit, "a-", dt, false);
+            DrawPhaseSeriesA(checkBoxAlimit, "a", dt, false);
+            DrawPhaseSeriesA(checkBoxAPlimit, "a+", dt, false);
+
+            DrawPhaseSeriesA(checkBoxAMlimitForecast, "a прогноз-", dt, true);
+            DrawPhaseSeriesA(checkBoxAlimitForecast, "a прогноз", dt, true);
+            DrawPhaseSeriesA(checkBoxAPlimitForecast, "a прогноз+", dt, true);
+
+            AutoScaleChartA();        }
+
+        private void RefreshFuncChartF()
+        {
+            chartF.Series.Clear();
+
+            if (dataGridViewPhase.DataSource == null)
+                return;
+
+            var dt = (DataTable)dataGridViewPhase.DataSource;
+
+            DrawFuncSeriesF(checkBoxFMlimit, "µ-", dt, false);
+            DrawFuncSeriesF(checkBoxFlimit, "µ", dt, false);
+            DrawFuncSeriesF(checkBoxFPlimit, "µ+", dt, false);
+
+            DrawFuncSeriesF(checkBoxFMlimitForecast, "µ прогноз-", dt, true);
+            DrawFuncSeriesF(checkBoxFlimitForecast, "µ прогноз", dt, true);
+            DrawFuncSeriesF(checkBoxFPlimitForecast, "µ прогноз+", dt, true);
+
+            AutoScaleChartF();
+        }
+
+        private void DrawPhaseSeriesA(CheckBox cb, string column, DataTable dt, bool forecast)
+        {
+            if (!cb.Checked) return;
+
+            var series = new System.Windows.Forms.DataVisualization.Charting.Series
+            {
+                Name = cb.Text,
+                ChartType = System.Windows.Forms.DataVisualization.Charting.SeriesChartType.Line,
+                BorderWidth = 2
+            };
+
+            if (forecast)
+                series.BorderDashStyle = System.Windows.Forms.DataVisualization.Charting.ChartDashStyle.Dash;
+
+            series.MarkerStyle = System.Windows.Forms.DataVisualization.Charting.MarkerStyle.Circle;
+            series.MarkerSize = 6;
+
+            foreach (DataRow row in dt.Rows)
+            {
+                if (row["µ"] == DBNull.Value || row[column] == DBNull.Value)
+                    continue;
+
+                double x = Convert.ToDouble(row["µ"]);
+                double y = Convert.ToDouble(row[column]);
+
+                series.Points.AddXY(x, y);
+            }
+
+            chartA.Series.Add(series);
+        }
+
+        private void DrawFuncSeriesF(CheckBox cb, string column, DataTable dt, bool forecast)
+        {
+            if (!cb.Checked) return;
+
+            var series = new System.Windows.Forms.DataVisualization.Charting.Series
+            {
+                Name = cb.Text,
+                ChartType = System.Windows.Forms.DataVisualization.Charting.SeriesChartType.Line,
+                BorderWidth = 2
+            };
+
+            if (forecast)
+                series.BorderDashStyle =
+                    System.Windows.Forms.DataVisualization.Charting.ChartDashStyle.Dash;
+
+            series.MarkerStyle =
+                System.Windows.Forms.DataVisualization.Charting.MarkerStyle.Circle;
+
+            series.MarkerSize = 6;
+
+            foreach (DataRow row in dt.Rows)
+            {
+                if (row["Цикл"] == DBNull.Value || row[column] == DBNull.Value)
+                    continue;
+
+                double x = Convert.ToDouble(row["Цикл"]);
+                double y = Convert.ToDouble(row[column]);
+
+                series.Points.AddXY(x, y);
+            }
+
+            chartF.Series.Add(series);
+        }
+
+        private void AutoScaleChartA()
+        {
+            var area = chartA.ChartAreas[0];
+
+            double minX = double.MaxValue;
+            double maxX = double.MinValue;
+            double minY = double.MaxValue;
+            double maxY = double.MinValue;
+
+            foreach (var series in chartA.Series)
+            {
+                foreach (var p in series.Points)
+                {
+                    double x = p.XValue;
+                    double y = p.YValues[0];
+
+                    if (x < minX) minX = x;
+                    if (x > maxX) maxX = x;
+
+                    if (y < minY) minY = y;
+                    if (y > maxY) maxY = y;
+                }
+            }
+
+            if (minX != double.MaxValue)
+            {
+                double mx = (maxX - minX) * 0.1;
+                area.AxisX.Minimum = minX - mx;
+                area.AxisX.Maximum = maxX + mx;
+            }
+
+            if (minY != double.MaxValue)
+            {
+                double my = (maxY - minY) * 0.1;
+                area.AxisY.Minimum = minY - my;
+                area.AxisY.Maximum = maxY + my;
+            }
+
+            area.AxisX.IntervalAutoMode =
+                System.Windows.Forms.DataVisualization.Charting.IntervalAutoMode.FixedCount;
+
+            area.AxisY.IntervalAutoMode =
+                System.Windows.Forms.DataVisualization.Charting.IntervalAutoMode.FixedCount;
+        }
+
+        private void AutoScaleChartF()
+        {
+            var area = chartF.ChartAreas[0];
+
+            double minX = double.MaxValue;
+            double maxX = double.MinValue;
+            double minY = double.MaxValue;
+            double maxY = double.MinValue;
+
+            foreach (var s in chartF.Series)
+            {
+                foreach (var p in s.Points)
+                {
+                    double x = p.XValue;
+                    double y = p.YValues[0];
+
+                    if (x < minX) minX = x;
+                    if (x > maxX) maxX = x;
+
+                    if (y < minY) minY = y;
+                    if (y > maxY) maxY = y;
+                }
+            }
+
+            if (minX != double.MaxValue)
+            {
+                double mx = (maxX - minX) * 0.05;
+                area.AxisX.Minimum = minX - mx;
+                area.AxisX.Maximum = maxX + mx;
+            }
+
+            if (minY != double.MaxValue)
+            {
+                double my = (maxY - minY) * 0.1;
+                area.AxisY.Minimum = minY - my;
+                area.AxisY.Maximum = maxY + my;
+            }
+
+            area.AxisX.Interval = Math.Max(1, (int)((maxX - minX) / 10));
+            area.AxisY.IntervalAutoMode =
+                System.Windows.Forms.DataVisualization.Charting.IntervalAutoMode.FixedCount;
+
+            chartF.ChartAreas[0].RecalculateAxesScale();
         }
 
         private void AddFuncSeries(CheckBox cb, string columnName, DataTable dt, bool isForecast)
@@ -1113,13 +1309,22 @@ namespace CourseWork
         private void checkBoxMuTForecast_CheckedChanged(object sender, EventArgs e) => UpdateFuncChart();
         private void checkBoxMuTpForecast_CheckedChanged(object sender, EventArgs e) => UpdateFuncChart();
 
-        private void checkBoxAMlimit_CheckedChanged(object sender, EventArgs e) => UpdatePhaseChart();
 
-        private void checkBoxAlimit_CheckedChanged(object sender, EventArgs e) => UpdatePhaseChart();
-        private void checkBoxAPlimit_CheckedChanged(object sender, EventArgs e) => UpdatePhaseChart();
 
-        private void checkBoxAMlimitForecast_CheckedChanged(object sender, EventArgs e) => UpdateFuncChart();
-        private void checkBoxAlimitForecast_CheckedChanged(object sender, EventArgs e) => UpdateFuncChart();
-        private void checkBoxAPlimitForecast_CheckedChanged(object sender, EventArgs e) => UpdateFuncChart();
+        private void checkBoxAMlimit_CheckedChanged(object sender, EventArgs e) => RefreshPhaseChartA();
+        private void checkBoxAlimit_CheckedChanged(object sender, EventArgs e) => RefreshPhaseChartA();
+        private void checkBoxAPlimit_CheckedChanged(object sender, EventArgs e) => RefreshPhaseChartA();
+
+        private void checkBoxAMlimitForecast_CheckedChanged(object sender, EventArgs e) => RefreshPhaseChartA();
+        private void checkBoxAlimitForecast_CheckedChanged(object sender, EventArgs e) => RefreshPhaseChartA();
+        private void checkBoxAPlimitForecast_CheckedChanged(object sender, EventArgs e) => RefreshPhaseChartA();
+
+        private void checkBoxFMlimit_CheckedChanged(object sender, EventArgs e) => RefreshFuncChartF();
+        private void checkBoxFlimit_CheckedChanged(object sender, EventArgs e) => RefreshFuncChartF();
+        private void checkBoxFPlimit_CheckedChanged(object sender, EventArgs e) => RefreshFuncChartF();
+
+        private void checkBoxFMlimitForecast_CheckedChanged(object sender, EventArgs e) => RefreshFuncChartF();
+        private void checkBoxFlimitForecast_CheckedChanged(object sender, EventArgs e) => RefreshFuncChartF();
+        private void checkBoxFPlimitForecast_CheckedChanged(object sender, EventArgs e) => RefreshFuncChartF();
     }
 }
