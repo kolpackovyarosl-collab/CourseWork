@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Data;
 using System.Data.SQLite;
 using System.Drawing;
@@ -11,9 +12,15 @@ namespace CourseWork
     public partial class Form1 : Form
     {
         private string dbPath;
+        private readonly Random random = new Random();
 
         private double prevA;
         private double prevE;
+        private Dictionary<string, List<string>> blockPoints = new Dictionary<string, List<string>>();
+        private Dictionary<string, DataTable> blockPhaseCache = new Dictionary<string, DataTable>();
+        private Dictionary<string, DataTable> blockConditionCache = new Dictionary<string, DataTable>();
+
+        private string currentBlock = "";
 
         public Form1()
         {
@@ -23,6 +30,186 @@ namespace CourseWork
         private SQLiteConnection GetConnection()
         {
             return new SQLiteConnection($"Data Source={dbPath};Version=3;");
+        }
+
+        private void LoadDataColumns()
+        {
+            using (var conn = GetConnection())
+            {
+                conn.Open();
+
+                var adapter = new SQLiteDataAdapter(
+                    "SELECT * FROM [Данные] LIMIT 1",
+                    conn);
+
+                DataTable dt = new DataTable();
+                adapter.Fill(dt);
+
+                listBoxAll.Items.Clear();
+
+                for (int i = 1; i < dt.Columns.Count; i++)
+                {
+                    string point =
+                        dt.Columns[i].ColumnName;
+
+                    listBoxAll.Items.Add(point);
+                }
+
+                foreach (var block in blockPoints)
+                {
+                    foreach (string point in block.Value)
+                    {
+                        if (listBoxAll.Items.Contains(point))
+                        {
+                            listBoxAll.Items.Remove(point);
+                        }
+                    }
+                }
+            }
+        }
+
+        private void LoadValues()
+        {
+            using (var conn = GetConnection())
+            {
+                conn.Open();
+
+                using (var cmd = new SQLiteCommand(
+                    "SELECT * FROM Значения LIMIT 1", conn))
+                using (var reader = cmd.ExecuteReader())
+                {
+                    if (!reader.Read())
+                        return;
+
+                    prevA = Convert.ToDouble(reader["A"]);
+                    prevE = Convert.ToDouble(reader["E"]);
+
+                    ExponentialSmoothingCoefficient.Text = prevA.ToString();
+                    MeasurementError.Text = prevE.ToString();
+
+                    if (reader["Схема"] != DBNull.Value)
+                    {
+                        byte[] imgBytes =
+                            (byte[])reader["Схема"];
+
+                        using (var ms = new MemoryStream(imgBytes))
+                        using (var image = Image.FromStream(ms))
+                        {
+                            pictureBox1.Image?.Dispose();
+
+                            pictureBox1.Image =
+                                new Bitmap(image);
+
+                            pictureBox1.SizeMode =
+                                PictureBoxSizeMode.Zoom;
+
+                            pictureBoxObject.Image?.Dispose();
+
+                            pictureBoxObject.Image =
+                                new Bitmap(image);
+
+                            pictureBoxObject.SizeMode =
+                                PictureBoxSizeMode.Zoom;
+                        }
+                    }
+                }
+            }
+        }
+
+        private void LoadTable(string tableName)
+        {
+            using (var conn = GetConnection())
+            {
+                conn.Open();
+
+                var adapter = new SQLiteDataAdapter($"SELECT * FROM [{tableName}]", conn);
+                DataTable dt = new DataTable();
+                adapter.Fill(dt);
+
+                dataGridView1.DataSource = dt;
+            }
+        }
+
+        private void LoadBlocks()
+        {
+            CreateBlocksTable();
+
+            blockPoints.Clear();
+
+            using (var conn = GetConnection())
+            {
+                conn.Open();
+
+                int blockCount = 0;
+
+                var cmdCount = new SQLiteCommand(
+                    "SELECT Количество FROM [Значения] LIMIT 1",
+                    conn);
+
+                blockCount =
+                    Convert.ToInt32(cmdCount.ExecuteScalar());
+
+                comboBoxSelectBox.Items.Clear();
+
+                char letter = 'А';
+
+                for (int i = 0; i < blockCount; i++)
+                {
+                    string block =
+                        ((char)(letter + i)).ToString();
+
+                    comboBoxSelectBox.Items.Add(block);
+                    comboBoxSelectBox2.Items.Add(block);
+
+                    blockPoints[block] =
+                        new List<string>();
+                }
+
+                var cmd = new SQLiteCommand(
+                    "SELECT * FROM [Блоки]",
+                    conn);
+
+                var reader = cmd.ExecuteReader();
+
+                while (reader.Read())
+                {
+                    string block =
+                        reader["Блок"].ToString();
+
+                    string point =
+                        reader["Точка"].ToString();
+
+                    if (blockPoints.ContainsKey(block))
+                    {
+                        blockPoints[block].Add(point);
+                    }
+                }
+            }
+
+            comboBoxSelectBox.SelectedIndex = 0;
+        }
+
+        private void SaveCurrentBlock()
+        {
+            if (string.IsNullOrEmpty(currentBlock))
+                return;
+
+            blockPoints[currentBlock].Clear();
+
+            foreach (var item in listBoxBlock.Items)
+            {
+                blockPoints[currentBlock].Add(
+                    item.ToString());
+            }
+        }
+        private void ShowBlock(string block)
+        {
+            listBoxBlock.Items.Clear();
+
+            foreach (string point in blockPoints[block])
+            {
+                listBoxBlock.Items.Add(point);
+            }
         }
 
         private void SelectDataBase_Click(object sender, EventArgs e)
@@ -53,8 +240,17 @@ namespace CourseWork
 
                         LoadValues();
                         LoadTable("Координаты Z контрольных точек");
+                        RecalculatePhase();
+                       
+                        LoadBlocks();
+                        if (comboBoxSelectBox2.Items.Count > 0)
+                        {
+                            comboBoxSelectBox2.SelectedIndex = 0;
+                        }
+                        LoadDataColumns();
 
                         MessageBox.Show("БД загружена");
+
                     }
                     catch (Exception ex)
                     {
@@ -64,48 +260,652 @@ namespace CourseWork
             }
         }
 
-        private void LoadValues()
+        private void RecalculatePhaseLevel2(string block)
         {
+            double alpha = prevA;
+            double beta = 0.2;
+
             using (var conn = GetConnection())
             {
                 conn.Open();
 
-                var cmd = new SQLiteCommand("SELECT * FROM Значения LIMIT 1", conn);
-                var reader = cmd.ExecuteReader();
+                var cmd = new SQLiteCommand(
+                    "SELECT * FROM [Координаты Z контрольных точек] ORDER BY Эпоха",
+                    conn);
+
+                var adapter = new SQLiteDataAdapter(cmd);
+                var dt = new DataTable();
+                adapter.Fill(dt);
+
+                var cmdParams = new SQLiteCommand(
+                    "SELECT * FROM [Значения] LIMIT 1",
+                    conn);
+
+                var reader = cmdParams.ExecuteReader();
+
+                double A = 0;
+                double Eps = 0;
 
                 if (reader.Read())
                 {
-                    prevA = Convert.ToDouble(reader["A"]);
-                    prevE = Convert.ToDouble(reader["E"]);
-
-                    ExponentialSmoothingCoefficient.Text = prevA.ToString();
-                    MeasurementError.Text = prevE.ToString();
-
-                    if (reader["Схема"] != DBNull.Value)
-                    {
-                        byte[] imgBytes = (byte[])reader["Схема"];
-                        using (MemoryStream ms = new MemoryStream(imgBytes))
-                        {
-                            pictureBox1.Image = Image.FromStream(ms);
-                            pictureBox1.SizeMode = PictureBoxSizeMode.Zoom;
-                        }
-                    }
+                    A = Convert.ToDouble(reader["A"]);
+                    Eps = Convert.ToDouble(reader["E"]);
                 }
+
+                reader.Close();
+
+
+                DataTable phase = new DataTable();
+                phase.Columns.Add("Цикл");
+
+                phase.Columns.Add("µ");
+                phase.Columns.Add("a");
+
+                phase.Columns.Add("µ+");
+                phase.Columns.Add("µ-");
+
+                phase.Columns.Add("a+");
+                phase.Columns.Add("a-");
+
+                phase.Columns.Add("µ прогноз");
+                phase.Columns.Add("µ прогноз-");
+                phase.Columns.Add("µ прогноз+");
+                phase.Columns.Add("a прогноз");
+                phase.Columns.Add("a прогноз-");
+                phase.Columns.Add("a прогноз+");
+
+                DataTable condition = new DataTable();
+                condition.Columns.Add("Цикл");
+                condition.Columns.Add("R");
+                condition.Columns.Add("L");
+                condition.Columns.Add("Состояние");
+                condition.Columns.Add("Декомпозиция");
+
+                if (!blockPoints.ContainsKey(block))
+                    return;
+
+                var columns = blockPoints[block];
+
+                Dictionary<string, double> prevMu = new Dictionary<string, double>();
+                Dictionary<string, double> prevA = new Dictionary<string, double>();
+
+                for (int rowIndex = 0; rowIndex < dt.Rows.Count; rowIndex++)
+                {
+                    DataRow row = dt.Rows[rowIndex];
+
+                    double muSum = 0;
+                    double aSum = 0;
+                    int valid = 0;
+
+                    foreach (var col in columns)
+                    {
+                        if (!dt.Columns.Contains(col)) continue;
+                        if (row[col] == DBNull.Value) continue;
+
+                        double x = Convert.ToDouble(row[col]);
+
+                        double mu = prevMu.ContainsKey(col)
+                            ? alpha * x + (1 - alpha) * prevMu[col]
+                            : x;
+
+                        double a = prevA.ContainsKey(col)
+                            ? beta * (mu - prevMu[col])
+                            : 0;
+
+                        prevMu[col] = mu;
+                        prevA[col] = a;
+
+                        muSum += mu;
+                        aSum += a;
+                        valid++;
+                    }
+
+                    if (valid == 0) continue;
+
+                    double muAvg = muSum / valid;
+                    double aAvg = aSum / valid;
+
+                    double muPlus = muAvg + A * Eps;
+                    double muMinus = muAvg - A * Eps;
+
+                    double aPlus = aAvg + Eps;
+                    double aMinus = aAvg - Eps;
+
+                    double muForecast = muAvg + aAvg;
+                    double muForecastMinus = muForecast - A * Eps;
+                    double muForecastPlus = muForecast + A * Eps;
+
+                    double aForecast = aAvg;
+                    double aForecastMinus = aForecast - Eps;
+                    double aForecastPlus = aForecast + Eps;
+
+                    double R = A * Eps;
+                    double L = Math.Abs(muAvg - muForecast);
+
+                    string state =
+                        (L <= R * 0.5) ? "Норма" :
+                        (L <= R) ? "Предупреждение" :
+                        "Авария";
+
+                    string decomp =
+                        (state == "Авария" || Math.Abs(aAvg) > Eps * 2)
+                        ? "Переход на следующий уровень"
+                        : "Уровень стабилен";
+
+                    DataRow pr = phase.NewRow();
+
+                    pr["Цикл"] = rowIndex;
+
+                    pr["µ"] = Math.Round(muAvg, 4);
+                    pr["a"] = Math.Round(aAvg, 4);
+
+                    pr["µ+"] = Math.Round(muPlus, 4);
+                    pr["µ-"] = Math.Round(muMinus, 4);
+
+                    pr["a+"] = Math.Round(aPlus, 4);
+                    pr["a-"] = Math.Round(aMinus, 4);
+
+                    pr["µ прогноз"] = Math.Round(muForecast, 4);
+                    pr["µ прогноз-"] = Math.Round(muForecastMinus, 4);
+                    pr["µ прогноз+"] = Math.Round(muForecastPlus, 4);
+
+                    pr["a прогноз"] = Math.Round(aForecast, 4);
+                    pr["a прогноз-"] = Math.Round(aForecastMinus, 4);
+                    pr["a прогноз+"] = Math.Round(aForecastPlus, 4);
+
+                    phase.Rows.Add(pr);
+
+
+                    condition.Rows.Add(
+                        rowIndex,
+                        Math.Round(R, 4),
+                        Math.Round(L, 4),
+                        state,
+                        decomp
+                    );
+                }
+
+                dataGridView3.DataSource = phase;
+                dataGridView2.DataSource = condition;
             }
         }
-
-        private void LoadTable(string tableName)
+        private void Recalculate()
         {
             using (var conn = GetConnection())
             {
                 conn.Open();
 
-                var adapter = new SQLiteDataAdapter($"SELECT * FROM [{tableName}]", conn);
-                DataTable dt = new DataTable();
+                var adapter = new SQLiteDataAdapter(
+                    "SELECT * FROM [Данные] ORDER BY Эпоха", conn);
+
+                var source = new DataTable();
+                adapter.Fill(source);
+
+                int n = source.Rows.Count;
+                if (n < 2) return;
+
+                int nextEpoch;
+
+                using (var cmd = new SQLiteCommand(
+                    "SELECT IFNULL(MAX(Эпоха), -1) FROM [Координаты Z контрольных точек]", conn))
+                {
+                    object result = cmd.ExecuteScalar();
+
+                    int maxEpoch = Convert.ToInt32(result);
+
+                    nextEpoch = maxEpoch + 1;
+                }
+
+                using (var insert = new SQLiteCommand(conn))
+                {
+                    string columns = "[Эпоха],";
+                    string values = "@epoch,";
+
+                    for (int i = 1; i <= 20; i++)
+                    {
+                        columns += $"[{i}],";
+                        values += $"@c{i},";
+                    }
+
+                    columns = columns.TrimEnd(',');
+                    values = values.TrimEnd(',');
+
+                    insert.CommandText =
+                        $"INSERT INTO [Координаты Z контрольных точек] ({columns}) VALUES ({values})";
+
+                    insert.Parameters.AddWithValue("@epoch", nextEpoch);
+
+                    for (int i = 1; i <= 20; i++)
+                    {
+                        string col = i.ToString();
+
+                        double sum = 0;
+
+                        for (int k = 0; k < n - 1; k++)
+                        {
+                            double z1 = Convert.ToDouble(source.Rows[k][col]);
+                            double z2 = Convert.ToDouble(source.Rows[k + 1][col]);
+
+                            double diff = z2 - z1;
+                            sum += diff * diff;
+                        }
+
+                        double d = Math.Sqrt(sum / (n - 1));
+
+                        double prevZ = Convert.ToDouble(source.Rows[n - 1][col]);
+
+                        double rnd = (random.NextDouble() * 2.0 - 1.0) * d;
+
+                        double newZ = Math.Round(prevZ + rnd, 4);
+
+                        insert.Parameters.AddWithValue($"@c{i}", newZ);
+                    }
+
+                    insert.ExecuteNonQuery();
+                }
+            }
+
+            LoadTable("Координаты Z контрольных точек");
+        }
+
+        private void RecalculatePhase()
+        {
+            double alpha = prevA;
+            double beta = 0.2;
+
+            using (var conn = GetConnection())
+            {
+                conn.Open();
+
+                var cmd = new SQLiteCommand(
+                    "SELECT * FROM [Координаты Z контрольных точек] ORDER BY Эпоха",
+                    conn);
+
+                var adapter = new SQLiteDataAdapter(cmd);
+                var dt = new DataTable();
                 adapter.Fill(dt);
 
-                dataGridView1.DataSource = dt;
+                var cmdParams = new SQLiteCommand(
+                    "SELECT * FROM [Значения] LIMIT 1",
+                    conn);
+
+                var reader = cmdParams.ExecuteReader();
+
+                double A = 0;
+                double Eps = 0;
+                int count = 0;
+
+                if (reader.Read())
+                {
+                    A = Convert.ToDouble(reader["A"]);
+                    Eps = Convert.ToDouble(reader["E"]);
+                    count = Convert.ToInt32(reader["Количество"]);
+                }
+
+                reader.Close();
+
+                DataTable phase = new DataTable();
+                phase.Columns.Add("Цикл");
+
+                phase.Columns.Add("µ");
+                phase.Columns.Add("a");
+
+                phase.Columns.Add("µ+");
+                phase.Columns.Add("µ-");
+
+                phase.Columns.Add("a+");
+                phase.Columns.Add("a-");
+
+                phase.Columns.Add("µ прогноз");
+                phase.Columns.Add("µ прогноз-");
+                phase.Columns.Add("µ прогноз+");
+                phase.Columns.Add("a прогноз");
+                phase.Columns.Add("a прогноз-");
+                phase.Columns.Add("a прогноз+");
+
+                DataTable condition = new DataTable();
+                condition.Columns.Add("Цикл");
+                condition.Columns.Add("R");
+                condition.Columns.Add("L");
+                condition.Columns.Add("Состояние");
+                condition.Columns.Add("Декомпозиция");
+
+                Dictionary<string, double> prevMu = new Dictionary<string, double>();
+                Dictionary<string, double> prevA = new Dictionary<string, double>();
+
+                for (int rowIndex = 0; rowIndex < dt.Rows.Count; rowIndex++)
+                {
+                    DataRow row = dt.Rows[rowIndex];
+
+                    double muSum = 0;
+                    double aSum = 0;
+                    int validCount = 0;
+
+                    for (int i = 1; i <= count; i++)
+                    {
+                        string col = i.ToString();
+                        if (!dt.Columns.Contains(col)) continue;
+                        if (row[col] == DBNull.Value) continue;
+
+                        double x = Convert.ToDouble(row[col]);
+
+                        double mu = prevMu.ContainsKey(col)
+                            ? alpha * x + (1 - alpha) * prevMu[col]
+                            : x;
+
+                        double a = prevA.ContainsKey(col)
+                            ? beta * (mu - prevMu[col])
+                            : 0;
+
+                        prevMu[col] = mu;
+                        prevA[col] = a;
+
+                        muSum += mu;
+                        aSum += a;
+                        validCount++;
+                    }
+
+                    if (validCount == 0) continue;
+
+                    double muAvg = muSum / validCount;
+                    double aAvg = aSum / validCount;
+
+
+                    double muPlus = muAvg + A * Eps;
+                    double muMinus = muAvg - A * Eps;
+
+                    double aPlus = aAvg + Eps;
+                    double aMinus = aAvg - Eps;
+
+
+                    double muForecast = muAvg + aAvg;
+                    double muForecastMinus = muForecast - A * Eps;
+                    double muForecastPlus = muForecast + A * Eps;
+                    double aForecast = aAvg;
+                    double aForecastMinus = aForecast - Eps;
+                    double aForecastPlus = aForecast + Eps;
+
+                    double R = A * Eps;
+                    double L = Math.Abs(muAvg - muForecast);
+
+                    string state;
+
+                    if (L <= R * 0.5)
+                        state = "Норма";
+                    else if (L <= R)
+                        state = "Предупреждение";
+                    else
+                        state = "Авария";
+
+                    string decomp =
+                        (state == "Авария" || Math.Abs(aAvg) > Eps * 2)
+                        ? "Переход на следующий уровень"
+                        : "Уровень стабилен";
+
+
+                    DataRow pr = phase.NewRow();
+
+                    pr["Цикл"] = rowIndex;
+
+                    pr["µ"] = Math.Round(muAvg, 4);
+                    pr["a"] = Math.Round(aAvg, 4);
+
+                    pr["µ+"] = Math.Round(muPlus, 4);
+                    pr["µ-"] = Math.Round(muMinus, 4);
+
+                    pr["a+"] = Math.Round(aPlus, 4);
+                    pr["a-"] = Math.Round(aMinus, 4);
+
+                    pr["µ прогноз"] = Math.Round(muForecast, 4);
+                    pr["µ прогноз-"] = Math.Round(muForecastMinus, 4);
+                    pr["µ прогноз+"] = Math.Round(muForecastPlus, 4);
+                    pr["a прогноз"] = Math.Round(aForecast, 4);
+                    pr["a прогноз-"] = Math.Round(aForecastMinus, 4);
+                    pr["a прогноз+"] = Math.Round(aForecastPlus, 4);
+
+                    phase.Rows.Add(pr);
+
+                    condition.Rows.Add(
+                        rowIndex,
+                        Math.Round(R, 4),
+                        Math.Round(L, 4),
+                        state,
+                        decomp
+                    );
+                }
+
+                dataGridViewPhase.DataSource = phase;
+                dataGridViewСonditionMonitoring.DataSource = condition;
+
+                UpdatePhaseChart();
+                UpdateFuncChart();
             }
+        }
+
+        private void UpdatePhaseChart()
+        {
+            chartPhase.Series.Clear();
+
+            if (dataGridViewPhase.DataSource == null) return;
+
+            var dt = (DataTable)dataGridViewPhase.DataSource;
+
+            AddSeriesIfChecked(checkBoxAMu, "a-", dt);
+            AddSeriesIfChecked(checkBoxAM, "a", dt);
+            AddSeriesIfChecked(checkBoxAMp, "a+", dt);
+
+            AddSeriesIfChecked(checkBoxAMuForecast, "a прогноз-", dt);
+            AddSeriesIfChecked(checkBoxAMForecast, "a прогноз", dt);
+            AddSeriesIfChecked(checkBoxAMpForecast, "a прогноз+", dt);
+        }
+
+        private void UpdateFuncChart()
+        {
+            chartFunc.Series.Clear();
+
+            if (dataGridViewPhase.DataSource == null) return;
+
+            var dt = (DataTable)dataGridViewPhase.DataSource;
+
+            AddFuncSeries(checkBoxMuT, "µ", dt, false);
+            AddFuncSeries(checkBoxMuTm, "µ-", dt, false);
+            AddFuncSeries(checkBoxMuTp, "µ+", dt, false);
+
+            AddFuncSeries(checkBoxMuTForecast, "µ прогноз", dt, true);
+            AddFuncSeries(checkBoxMuTmForecast, "µ прогноз-", dt, true);
+            AddFuncSeries(checkBoxMuTpForecast, "µ прогноз+", dt, true);
+        }
+
+        private void AddFuncSeries(CheckBox cb, string columnName, DataTable dt, bool isForecast)
+        {
+            if (!cb.Checked) return;
+
+            var series = new System.Windows.Forms.DataVisualization.Charting.Series
+            {
+                Name = cb.Text,
+                ChartType = System.Windows.Forms.DataVisualization.Charting.SeriesChartType.Line,
+                BorderWidth = 2
+            };
+
+            if (isForecast)
+            {
+                series.BorderDashStyle =
+                    System.Windows.Forms.DataVisualization.Charting.ChartDashStyle.Dash;
+            }
+
+            series.MarkerStyle = System.Windows.Forms.DataVisualization.Charting.MarkerStyle.Circle;
+            series.MarkerSize = 6;
+            series.MarkerColor = System.Drawing.Color.Black;
+
+            double minY = double.MaxValue;
+            double maxY = double.MinValue;
+
+            foreach (DataRow row in dt.Rows)
+            {
+                if (row["Цикл"] == DBNull.Value || row[columnName] == DBNull.Value)
+                    continue;
+
+                double t = Convert.ToDouble(row["Цикл"]);
+                double mu = Convert.ToDouble(row[columnName]);
+
+                int idx = series.Points.AddXY(t, mu);
+
+                series.Points[idx].Label = t.ToString();
+
+                if (mu < minY) minY = mu;
+                if (mu > maxY) maxY = mu;
+            }
+
+            chartFunc.Series.Add(series);
+
+            var area = chartFunc.ChartAreas[0];
+
+            area.AxisX.Minimum = 0;
+            area.AxisX.Maximum = 13;
+
+            double margin = (maxY - minY) * 0.1;
+
+            area.AxisY.Minimum = minY - margin;
+            area.AxisY.Maximum = maxY + margin;
+
+            area.AxisX.Interval = 1;
+            area.AxisY.IntervalAutoMode =
+                System.Windows.Forms.DataVisualization.Charting.IntervalAutoMode.FixedCount;
+        }
+
+        private void AddSeriesIfChecked(CheckBox cb, string columnName, DataTable dt)
+        {
+            if (!cb.Checked) return;
+
+            var series = new System.Windows.Forms.DataVisualization.Charting.Series
+            {
+                Name = cb.Text,
+                ChartType = System.Windows.Forms.DataVisualization.Charting.SeriesChartType.Line,
+                BorderWidth = 2
+            };
+
+            if (columnName.Contains("прогноз"))
+            {
+                series.BorderDashStyle = System.Windows.Forms.DataVisualization.Charting.ChartDashStyle.Dash;
+            }
+
+            series.MarkerStyle = System.Windows.Forms.DataVisualization.Charting.MarkerStyle.Circle;
+            series.MarkerSize = 6;
+            series.MarkerColor = System.Drawing.Color.Black;
+
+            int epoch = 0;
+
+            foreach (DataRow row in dt.Rows)
+            {
+                if (row["µ"] == DBNull.Value || row[columnName] == DBNull.Value)
+                    continue;
+
+                double x = Convert.ToDouble(row["µ"]);
+                double y = Convert.ToDouble(row[columnName]);
+
+                int idx = series.Points.AddXY(x, y);
+
+                series.Points[idx].Label = epoch.ToString();
+
+                epoch++;
+            }
+
+            chartPhase.Series.Add(series);
+        }
+
+        private void MoveSelectedItem(
+            ListBox source,
+            ListBox target
+            )
+        {
+            if (source.SelectedItem == null)
+                return;
+
+            string point =
+                source.SelectedItem.ToString();
+
+            target.Items.Add(point);
+
+            source.Items.Remove(point);
+
+            SaveCurrentBlock();
+        }
+
+        private void CreateBlocksTable()
+        {
+            using (var conn = GetConnection())
+            {
+                conn.Open();
+
+                var cmd = new SQLiteCommand(
+                @"CREATE TABLE IF NOT EXISTS [Блоки]
+        (
+            Блок TEXT NOT NULL,
+            Точка TEXT NOT NULL
+        )", conn);
+
+                cmd.ExecuteNonQuery();
+            }
+        }
+
+        private void buttonSaveBlock_Click(
+    object sender,
+    EventArgs e)
+        {
+            SaveCurrentBlock();
+
+            int size = -1;
+
+            foreach (var block in blockPoints)
+            {
+                if (size == -1)
+                {
+                    size = block.Value.Count;
+                    continue;
+                }
+
+                if (size != block.Value.Count)
+                {
+                    MessageBox.Show(
+                        "Количество точек в блоках должно совпадать.");
+
+                    return;
+                }
+            }
+
+            using (var conn = GetConnection())
+            {
+                conn.Open();
+
+                new SQLiteCommand(
+                    "DELETE FROM [Блоки]",
+                    conn).ExecuteNonQuery();
+
+                foreach (var block in blockPoints)
+                {
+                    foreach (string point in block.Value)
+                    {
+                        var cmd = new SQLiteCommand(
+                            @"INSERT INTO [Блоки]
+                    (Блок, Точка)
+                    VALUES
+                    (@b,@p)", conn);
+
+                        cmd.Parameters.AddWithValue(
+                            "@b",
+                            block.Key);
+
+                        cmd.Parameters.AddWithValue(
+                            "@p",
+                            point);
+
+                        cmd.ExecuteNonQuery();
+                    }
+                }
+            }
+
+            MessageBox.Show(
+                "Блоки сохранены.");
         }
 
         private void OpenTableButton_Click(object sender, EventArgs e)
@@ -113,72 +913,6 @@ namespace CourseWork
             if (comboBoxDataTable.SelectedItem == null) return;
             LoadTable(comboBoxDataTable.SelectedItem.ToString());
         }
-
-        private void Recalculate()
-        {
-            double alpha = prevA;
-
-            using (var conn = GetConnection())
-            {
-                conn.Open();
-
-                var selectCmd = new SQLiteCommand("SELECT * FROM [Данные] ORDER BY Эпоха", conn);
-
-                var adapter = new SQLiteDataAdapter(selectCmd);
-                var sourceDt = new DataTable();
-                adapter.Fill(sourceDt);
-
-                double[] prevValues = new double[20];
-                bool firstRow = true;
-
-                var resultDt = sourceDt.Copy();
-
-                foreach (DataRow row in resultDt.Rows)
-                {
-                    for (int i = 1; i <= 20; i++)
-                    {
-                        string col = i.ToString();
-
-                        if (row[col] == DBNull.Value)
-                            continue;
-
-                        double x = Convert.ToDouble(row[col]);
-                        double s;
-
-                        if (firstRow)
-                            s = x;
-                        else
-                            s = alpha * x + (1 - alpha) * prevValues[i - 1];
-
-                        prevValues[i - 1] = s;
-                        row[col] = s;
-                    }
-
-                    firstRow = false;
-                }
-
-                foreach (DataRow row in resultDt.Rows)
-                {
-                    var update = new SQLiteCommand(@"
-UPDATE [Координаты Z контрольных точек]
-SET 
-[1]=@c1,[2]=@c2,[3]=@c3,[4]=@c4,[5]=@c5,
-[6]=@c6,[7]=@c7,[8]=@c8,[9]=@c9,[10]=@c10,
-[11]=@c11,[12]=@c12,[13]=@c13,[14]=@c14,[15]=@c15,
-[16]=@c16,[17]=@c17,[18]=@c18,[19]=@c19,[20]=@c20
-WHERE Эпоха=@epoch", conn);
-
-                    update.Parameters.AddWithValue("@epoch", row["Эпоха"]);
-
-                    for (int i = 1; i <= 20; i++)
-                        update.Parameters.AddWithValue($"@c{i}", row[i.ToString()]);
-
-                    update.ExecuteNonQuery();
-                }
-            }
-        }
-
-        private void RecalculatePhase() { double alpha = prevA; double beta = 0.2; double E = prevE; using (var conn = GetConnection()) { conn.Open(); var cmd = new SQLiteCommand("SELECT * FROM [Координаты Z контрольных точек] ORDER BY Эпоха", conn); var adapter = new SQLiteDataAdapter(cmd); var dt = new DataTable(); adapter.Fill(dt); DataTable phase = new DataTable(); phase.Columns.Add("Цикл"); phase.Columns.Add("µ(t)"); phase.Columns.Add("µ(t)-"); phase.Columns.Add("µ(t)+"); phase.Columns.Add("a(µ)"); phase.Columns.Add("a(µ)-"); phase.Columns.Add("a(µ)+"); phase.Columns.Add("µ прогноз"); phase.Columns.Add("µ прогноз-"); phase.Columns.Add("µ прогноз+"); phase.Columns.Add("a прогноз"); phase.Columns.Add("a прогноз-"); phase.Columns.Add("a прогноз+"); DataTable monitor = new DataTable(); monitor.Columns.Add("Цикл"); monitor.Columns.Add("R"); monitor.Columns.Add("L"); monitor.Columns.Add("Состояние"); double prevMu = 0; double prevTrend = 0; bool first = true; int cycle = 0; foreach (DataRow row in dt.Rows) { for (int i = 1; i <= 20; i++) { string col = i.ToString(); if (row[col] == DBNull.Value) continue; double x = Convert.ToDouble(row[col]); double mu, trend; if (first) { mu = x; trend = 0; } else { mu = alpha * x + (1 - alpha) * (prevMu + prevTrend); trend = beta * (mu - prevMu) + (1 - beta) * prevTrend; } double muForecast = mu + trend; double aForecast = trend; double muMinus = mu - E; double muPlus = mu + E; double aMinus = trend - E; double aPlus = trend + E; var pr = phase.NewRow(); pr["Цикл"] = cycle++; pr["µ(t)"] = mu; pr["µ(t)-"] = muMinus; pr["µ(t)+"] = muPlus; pr["a(µ)"] = trend; pr["a(µ)-"] = aMinus; pr["a(µ)+"] = aPlus; pr["µ прогноз"] = muForecast; pr["µ прогноз-"] = muForecast - E; pr["µ прогноз+"] = muForecast + E; pr["a прогноз"] = aForecast; pr["a прогноз-"] = aForecast - E; pr["a прогноз+"] = aForecast + E; phase.Rows.Add(pr); double R = Math.Abs(x - muForecast); string state = R < E ? "Норма" : R < 2 * E ? "Предупреждение" : "Авария"; var mr = monitor.NewRow(); mr["Цикл"] = cycle; mr["R"] = R; mr["L"] = E; mr["Состояние"] = state; monitor.Rows.Add(mr); prevMu = mu; prevTrend = trend; first = false; } } dataGridViewPhase.DataSource = phase; dataGridViewСonditionMonitoring.DataSource = monitor; UpdatePhaseChart(); } }
 
         private void apply_Click(object sender, EventArgs e)
         {
@@ -243,48 +977,6 @@ WHERE Эпоха=@epoch", conn);
             }
         }
 
-        private void UpdatePhaseChart()
-        {
-            chartPhase.Series.Clear();
-
-            if (dataGridViewPhase.DataSource == null) return;
-
-            var dt = (DataTable)dataGridViewPhase.DataSource;
-
-            AddSeriesIfChecked(checkBoxAMu, "a(µ)-", dt);
-            AddSeriesIfChecked(checkBoxAM, "a(µ)", dt);
-            AddSeriesIfChecked(checkBoxAMp, "a(µ)+", dt);
-
-            AddSeriesIfChecked(checkBoxAMuForecast, "a прогноз-", dt);
-            AddSeriesIfChecked(checkBoxAMForecast, "a прогноз", dt);
-            AddSeriesIfChecked(checkBoxAMpForecast, "a прогноз+", dt);
-        }
-
-        private void AddSeriesIfChecked(CheckBox cb, string columnName, DataTable dt)
-        {
-            if (!cb.Checked) return;
-
-            var series = new System.Windows.Forms.DataVisualization.Charting.Series
-            {
-                Name = cb.Text,
-                ChartType = System.Windows.Forms.DataVisualization.Charting.SeriesChartType.Line,
-                BorderWidth = 2
-            };
-
-            foreach (DataRow row in dt.Rows)
-            {
-                if (row["Цикл"] == DBNull.Value || row[columnName] == DBNull.Value)
-                    continue;
-
-                double x = Convert.ToDouble(row["Цикл"]);
-                double y = Convert.ToDouble(row[columnName]);
-
-                series.Points.AddXY(x, y);
-            }
-
-            chartPhase.Series.Add(series);
-        }
-
         private void addCycleWatch_Click(object sender, EventArgs e)
         {
             string tableName = "Координаты Z контрольных точек";
@@ -322,6 +1014,11 @@ WHERE Эпоха=@epoch", conn);
             LoadTable(tableName);
         }
 
+        private void buttonSecontLevel_Click(object sender, EventArgs e)
+        {
+            tabControl.SelectedTab = tabSecond;
+        }
+
         private void ClearCheckBox_Click(object sender, EventArgs e)
         {
             checkBoxAMu.Checked = false;
@@ -331,11 +1028,6 @@ WHERE Эпоха=@epoch", conn);
             checkBoxAMuForecast.Checked = false;
             checkBoxAMForecast.Checked = false;
             checkBoxAMpForecast.Checked = false;
-        }
-
-        private void buttonSecontLevel_Click(object sender, EventArgs e)
-        {
-            tabControl.SelectedTab = tabSecond;
         }
 
         private void buttonCleatAll2_Click(object sender, EventArgs e)
@@ -349,6 +1041,62 @@ WHERE Эпоха=@epoch", conn);
             checkBoxMuTpForecast.Checked = false;
         }
 
+        private void buttonClearAllSecond2_Click(object sender, EventArgs e)
+        {
+            checkBoxFMlimit.Checked = false;
+            checkBoxFlimit.Checked = false;
+            checkBoxFPlimit.Checked = false;
+            checkBoxFlimitForecast.Checked = false;
+            checkBoxFPlimitForecast.Checked = false;
+            checkBoxFMlimitForecast.Checked = false;
+        }
+
+        private void buttonClearAllSecond_Click(object sender, EventArgs e)
+        {
+            checkBoxAMlimit.Checked = false;
+            checkBoxAlimit.Checked = false;
+            checkBoxAPlimit.Checked = false;
+            checkBoxAlimitForecast.Checked = false;
+            checkBoxAPlimitForecast.Checked = false;
+            checkBoxAMlimitForecast.Checked = false;
+        }
+
+        private void listBoxAll_DoubleClick(object sender, EventArgs e)
+        {
+            MoveSelectedItem(
+                listBoxAll,
+                listBoxBlock);
+        }
+
+        private void listBoxBlock_DoubleClick(object sender, EventArgs e)
+        {
+            MoveSelectedItem(
+                listBoxBlock,
+                listBoxAll);
+        }
+
+        private void comboBoxSelectBox_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            SaveCurrentBlock();
+
+            currentBlock =
+                comboBoxSelectBox.SelectedItem.ToString();
+
+            ShowBlock(currentBlock);
+        }
+
+        private void comboBoxSelectBox2_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            if (comboBoxSelectBox2.SelectedItem == null)
+                return;
+
+            string block = comboBoxSelectBox2.SelectedItem.ToString();
+
+            currentBlock = block;
+
+            RecalculatePhaseLevel2(block);
+        }
+
         private void checkBoxAMu_CheckedChanged(object sender, EventArgs e) => UpdatePhaseChart();
         private void checkBoxAM_CheckedChanged(object sender, EventArgs e) => UpdatePhaseChart();
         private void checkBoxAMp_CheckedChanged(object sender, EventArgs e) => UpdatePhaseChart();
@@ -356,5 +1104,22 @@ WHERE Эпоха=@epoch", conn);
         private void checkBoxAMuForecast_CheckedChanged(object sender, EventArgs e) => UpdatePhaseChart();
         private void checkBoxAMForecast_CheckedChanged(object sender, EventArgs e) => UpdatePhaseChart();
         private void checkBoxAMpForecast_CheckedChanged(object sender, EventArgs e) => UpdatePhaseChart();
+
+        private void checkBoxMuTm_CheckedChanged(object sender, EventArgs e) => UpdateFuncChart();
+        private void checkBoxMuT_CheckedChanged(object sender, EventArgs e) => UpdateFuncChart();
+        private void checkBoxMuTp_CheckedChanged(object sender, EventArgs e) => UpdateFuncChart();
+
+        private void checkBoxMuTmForecast_CheckedChanged(object sender, EventArgs e) => UpdateFuncChart();
+        private void checkBoxMuTForecast_CheckedChanged(object sender, EventArgs e) => UpdateFuncChart();
+        private void checkBoxMuTpForecast_CheckedChanged(object sender, EventArgs e) => UpdateFuncChart();
+
+        private void checkBoxAMlimit_CheckedChanged(object sender, EventArgs e) => UpdatePhaseChart();
+
+        private void checkBoxAlimit_CheckedChanged(object sender, EventArgs e) => UpdatePhaseChart();
+        private void checkBoxAPlimit_CheckedChanged(object sender, EventArgs e) => UpdatePhaseChart();
+
+        private void checkBoxAMlimitForecast_CheckedChanged(object sender, EventArgs e) => UpdateFuncChart();
+        private void checkBoxAlimitForecast_CheckedChanged(object sender, EventArgs e) => UpdateFuncChart();
+        private void checkBoxAPlimitForecast_CheckedChanged(object sender, EventArgs e) => UpdateFuncChart();
     }
 }

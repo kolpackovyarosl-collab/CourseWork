@@ -28,14 +28,61 @@
         /// </summary>
         private void InitializeComponent()
         {
-            System.Windows.Forms.DataVisualization.Charting.ChartArea chartArea1 = new System.Windows.Forms.DataVisualization.Charting.ChartArea();
-            System.Windows.Forms.DataVisualization.Charting.Legend legend1 = new System.Windows.Forms.DataVisualization.Charting.Legend();
-            System.Windows.Forms.DataVisualization.Charting.Series series1 = new System.Windows.Forms.DataVisualization.Charting.Series();
-            System.Windows.Forms.DataVisualization.Charting.ChartArea chartArea2 = new System.Windows.Forms.DataVisualization.Charting.ChartArea();
-            System.Windows.Forms.DataVisualization.Charting.Legend legend2 = new System.Windows.Forms.DataVisualization.Charting.Legend();
-            System.Windows.Forms.DataVisualization.Charting.Series series2 = new System.Windows.Forms.DataVisualization.Charting.Series();
+            System.Windows.Forms.DataVisualization.Charting.ChartArea chartArea29 = new System.Windows.Forms.DataVisualization.Charting.ChartArea();
+            System.Windows.Forms.DataVisualization.Charting.Legend legend29 = new System.Windows.Forms.DataVisualization.Charting.Legend();
+            System.Windows.Forms.DataVisualization.Charting.Series series29 = new System.Windows.Forms.DataVisualization.Charting.Series();
+            System.Windows.Forms.DataVisualization.Charting.ChartArea chartArea30 = new System.Windows.Forms.DataVisualization.Charting.ChartArea();
+            System.Windows.Forms.DataVisualization.Charting.Legend legend30 = new System.Windows.Forms.DataVisualization.Charting.Legend();
+            System.Windows.Forms.DataVisualization.Charting.Series series30 = new System.Windows.Forms.DataVisualization.Charting.Series();
+            System.Windows.Forms.DataVisualization.Charting.ChartArea chartArea31 = new System.Windows.Forms.DataVisualization.Charting.ChartArea();
+            System.Windows.Forms.DataVisualization.Charting.Legend legend31 = new System.Windows.Forms.DataVisualization.Charting.Legend();
+            System.Windows.Forms.DataVisualization.Charting.Series series31 = new System.Windows.Forms.DataVisualization.Charting.Series();
+            System.Windows.Forms.DataVisualization.Charting.ChartArea chartArea32 = new System.Windows.Forms.DataVisualization.Charting.ChartArea();
+            System.Windows.Forms.DataVisualization.Charting.Legend legend32 = new System.Windows.Forms.DataVisualization.Charting.Legend();
+            System.Windows.Forms.DataVisualization.Charting.Series series32 = new System.Windows.Forms.DataVisualization.Charting.Series();
             this.label1 = new System.Windows.Forms.Label();
             this.tabSecond = new System.Windows.Forms.TabPage();
+            this.tabControl2 = new System.Windows.Forms.TabControl();
+            this.tabPageDistribution = new System.Windows.Forms.TabPage();
+            this.splitContainer3 = new System.Windows.Forms.SplitContainer();
+            this.listBoxBlock = new System.Windows.Forms.ListBox();
+            this.listBoxAll = new System.Windows.Forms.ListBox();
+            this.buttonSaveBlock = new System.Windows.Forms.Button();
+            this.label17 = new System.Windows.Forms.Label();
+            this.label16 = new System.Windows.Forms.Label();
+            this.comboBoxSelectBox = new System.Windows.Forms.ComboBox();
+            this.label15 = new System.Windows.Forms.Label();
+            this.pictureBoxObject = new System.Windows.Forms.PictureBox();
+            this.label18 = new System.Windows.Forms.Label();
+            this.tabPageСalculation = new System.Windows.Forms.TabPage();
+            this.splitContainer4 = new System.Windows.Forms.SplitContainer();
+            this.comboBoxSelectBox2 = new System.Windows.Forms.ComboBox();
+            this.label23 = new System.Windows.Forms.Label();
+            this.dataGridView2 = new System.Windows.Forms.DataGridView();
+            this.label19 = new System.Windows.Forms.Label();
+            this.dataGridView3 = new System.Windows.Forms.DataGridView();
+            this.label20 = new System.Windows.Forms.Label();
+            this.tabControl3 = new System.Windows.Forms.TabControl();
+            this.tabPageSecondPhaseTrack = new System.Windows.Forms.TabPage();
+            this.checkBoxAPlimitForecast = new System.Windows.Forms.CheckBox();
+            this.checkBoxAlimitForecast = new System.Windows.Forms.CheckBox();
+            this.checkBoxAMlimitForecast = new System.Windows.Forms.CheckBox();
+            this.checkBoxAPlimit = new System.Windows.Forms.CheckBox();
+            this.checkBoxAlimit = new System.Windows.Forms.CheckBox();
+            this.checkBoxAMlimit = new System.Windows.Forms.CheckBox();
+            this.buttonClearAllSecond = new System.Windows.Forms.Button();
+            this.label21 = new System.Windows.Forms.Label();
+            this.chartA = new System.Windows.Forms.DataVisualization.Charting.Chart();
+            this.tabPageSecondFunc = new System.Windows.Forms.TabPage();
+            this.checkBoxFPlimitForecast = new System.Windows.Forms.CheckBox();
+            this.checkBoxFlimitForecast = new System.Windows.Forms.CheckBox();
+            this.checkBoxFMlimitForecast = new System.Windows.Forms.CheckBox();
+            this.checkBoxFPlimit = new System.Windows.Forms.CheckBox();
+            this.checkBoxFlimit = new System.Windows.Forms.CheckBox();
+            this.checkBoxFMlimit = new System.Windows.Forms.CheckBox();
+            this.buttonClearAllSecond2 = new System.Windows.Forms.Button();
+            this.label22 = new System.Windows.Forms.Label();
+            this.chartF = new System.Windows.Forms.DataVisualization.Charting.Chart();
             this.tabFirst = new System.Windows.Forms.TabPage();
             this.splitContainer2 = new System.Windows.Forms.SplitContainer();
             this.dataGridViewСonditionMonitoring = new System.Windows.Forms.DataGridView();
@@ -89,6 +136,26 @@
             this.pictureBox1 = new System.Windows.Forms.PictureBox();
             this.dataGridView1 = new System.Windows.Forms.DataGridView();
             this.tabControl = new System.Windows.Forms.TabControl();
+            this.tabSecond.SuspendLayout();
+            this.tabControl2.SuspendLayout();
+            this.tabPageDistribution.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.splitContainer3)).BeginInit();
+            this.splitContainer3.Panel1.SuspendLayout();
+            this.splitContainer3.Panel2.SuspendLayout();
+            this.splitContainer3.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.pictureBoxObject)).BeginInit();
+            this.tabPageСalculation.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.splitContainer4)).BeginInit();
+            this.splitContainer4.Panel1.SuspendLayout();
+            this.splitContainer4.Panel2.SuspendLayout();
+            this.splitContainer4.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.dataGridView2)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.dataGridView3)).BeginInit();
+            this.tabControl3.SuspendLayout();
+            this.tabPageSecondPhaseTrack.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.chartA)).BeginInit();
+            this.tabPageSecondFunc.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.chartF)).BeginInit();
             this.tabFirst.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer2)).BeginInit();
             this.splitContainer2.Panel1.SuspendLayout();
@@ -125,6 +192,7 @@
             // 
             // tabSecond
             // 
+            this.tabSecond.Controls.Add(this.tabControl2);
             this.tabSecond.Cursor = System.Windows.Forms.Cursors.Hand;
             this.tabSecond.ForeColor = System.Drawing.SystemColors.ControlDark;
             this.tabSecond.Location = new System.Drawing.Point(4, 22);
@@ -134,6 +202,487 @@
             this.tabSecond.TabIndex = 2;
             this.tabSecond.Text = "Второй уровень декомпозиции";
             this.tabSecond.UseVisualStyleBackColor = true;
+            // 
+            // tabControl2
+            // 
+            this.tabControl2.Controls.Add(this.tabPageDistribution);
+            this.tabControl2.Controls.Add(this.tabPageСalculation);
+            this.tabControl2.Location = new System.Drawing.Point(7, 6);
+            this.tabControl2.Name = "tabControl2";
+            this.tabControl2.SelectedIndex = 0;
+            this.tabControl2.Size = new System.Drawing.Size(882, 459);
+            this.tabControl2.TabIndex = 0;
+            // 
+            // tabPageDistribution
+            // 
+            this.tabPageDistribution.Controls.Add(this.splitContainer3);
+            this.tabPageDistribution.Location = new System.Drawing.Point(4, 22);
+            this.tabPageDistribution.Name = "tabPageDistribution";
+            this.tabPageDistribution.Padding = new System.Windows.Forms.Padding(3);
+            this.tabPageDistribution.Size = new System.Drawing.Size(874, 433);
+            this.tabPageDistribution.TabIndex = 0;
+            this.tabPageDistribution.Text = "Распределение контрольных точек по блокам";
+            this.tabPageDistribution.UseVisualStyleBackColor = true;
+            // 
+            // splitContainer3
+            // 
+            this.splitContainer3.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.splitContainer3.Location = new System.Drawing.Point(3, 3);
+            this.splitContainer3.Name = "splitContainer3";
+            // 
+            // splitContainer3.Panel1
+            // 
+            this.splitContainer3.Panel1.Controls.Add(this.listBoxBlock);
+            this.splitContainer3.Panel1.Controls.Add(this.listBoxAll);
+            this.splitContainer3.Panel1.Controls.Add(this.buttonSaveBlock);
+            this.splitContainer3.Panel1.Controls.Add(this.label17);
+            this.splitContainer3.Panel1.Controls.Add(this.label16);
+            this.splitContainer3.Panel1.Controls.Add(this.comboBoxSelectBox);
+            this.splitContainer3.Panel1.Controls.Add(this.label15);
+            // 
+            // splitContainer3.Panel2
+            // 
+            this.splitContainer3.Panel2.Controls.Add(this.pictureBoxObject);
+            this.splitContainer3.Panel2.Controls.Add(this.label18);
+            this.splitContainer3.Size = new System.Drawing.Size(868, 427);
+            this.splitContainer3.SplitterDistance = 289;
+            this.splitContainer3.TabIndex = 0;
+            // 
+            // listBoxBlock
+            // 
+            this.listBoxBlock.FormattingEnabled = true;
+            this.listBoxBlock.Location = new System.Drawing.Point(152, 90);
+            this.listBoxBlock.Name = "listBoxBlock";
+            this.listBoxBlock.Size = new System.Drawing.Size(120, 290);
+            this.listBoxBlock.TabIndex = 10;
+            this.listBoxBlock.DoubleClick += new System.EventHandler(this.listBoxBlock_DoubleClick);
+            // 
+            // listBoxAll
+            // 
+            this.listBoxAll.FormattingEnabled = true;
+            this.listBoxAll.Location = new System.Drawing.Point(16, 90);
+            this.listBoxAll.Name = "listBoxAll";
+            this.listBoxAll.Size = new System.Drawing.Size(120, 290);
+            this.listBoxAll.TabIndex = 9;
+            this.listBoxAll.DoubleClick += new System.EventHandler(this.listBoxAll_DoubleClick);
+            // 
+            // buttonSaveBlock
+            // 
+            this.buttonSaveBlock.ForeColor = System.Drawing.SystemColors.ActiveCaptionText;
+            this.buttonSaveBlock.Location = new System.Drawing.Point(16, 396);
+            this.buttonSaveBlock.Name = "buttonSaveBlock";
+            this.buttonSaveBlock.Size = new System.Drawing.Size(256, 23);
+            this.buttonSaveBlock.TabIndex = 8;
+            this.buttonSaveBlock.Text = "Сохранить точки";
+            this.buttonSaveBlock.UseVisualStyleBackColor = true;
+            this.buttonSaveBlock.Click += new System.EventHandler(this.buttonSaveBlock_Click);
+            // 
+            // label17
+            // 
+            this.label17.AutoSize = true;
+            this.label17.ForeColor = System.Drawing.SystemColors.ActiveCaptionText;
+            this.label17.Location = new System.Drawing.Point(166, 60);
+            this.label17.Name = "label17";
+            this.label17.Size = new System.Drawing.Size(106, 26);
+            this.label17.TabIndex = 7;
+            this.label17.Text = "Контрольные точки\r\nблока";
+            this.label17.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
+            // 
+            // label16
+            // 
+            this.label16.ForeColor = System.Drawing.SystemColors.ActiveCaptionText;
+            this.label16.Location = new System.Drawing.Point(28, 60);
+            this.label16.Name = "label16";
+            this.label16.Size = new System.Drawing.Size(96, 26);
+            this.label16.TabIndex = 6;
+            this.label16.Text = "Все контрольные\r\nточки объекта";
+            this.label16.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
+            // 
+            // comboBoxSelectBox
+            // 
+            this.comboBoxSelectBox.FormattingEnabled = true;
+            this.comboBoxSelectBox.Location = new System.Drawing.Point(16, 26);
+            this.comboBoxSelectBox.Name = "comboBoxSelectBox";
+            this.comboBoxSelectBox.Size = new System.Drawing.Size(256, 21);
+            this.comboBoxSelectBox.TabIndex = 5;
+            this.comboBoxSelectBox.SelectedIndexChanged += new System.EventHandler(this.comboBoxSelectBox_SelectedIndexChanged);
+            // 
+            // label15
+            // 
+            this.label15.AutoSize = true;
+            this.label15.ForeColor = System.Drawing.SystemColors.ActiveCaptionText;
+            this.label15.Location = new System.Drawing.Point(13, 10);
+            this.label15.Name = "label15";
+            this.label15.Size = new System.Drawing.Size(84, 13);
+            this.label15.TabIndex = 0;
+            this.label15.Text = "Выберите блок";
+            // 
+            // pictureBoxObject
+            // 
+            this.pictureBoxObject.Location = new System.Drawing.Point(19, 26);
+            this.pictureBoxObject.Name = "pictureBoxObject";
+            this.pictureBoxObject.Size = new System.Drawing.Size(553, 398);
+            this.pictureBoxObject.TabIndex = 12;
+            this.pictureBoxObject.TabStop = false;
+            // 
+            // label18
+            // 
+            this.label18.AutoSize = true;
+            this.label18.ForeColor = System.Drawing.SystemColors.ActiveCaptionText;
+            this.label18.Location = new System.Drawing.Point(16, 10);
+            this.label18.Name = "label18";
+            this.label18.Size = new System.Drawing.Size(155, 13);
+            this.label18.TabIndex = 11;
+            this.label18.Text = "Схема техногенного объекта\r\n";
+            this.label18.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
+            // 
+            // tabPageСalculation
+            // 
+            this.tabPageСalculation.Controls.Add(this.splitContainer4);
+            this.tabPageСalculation.Location = new System.Drawing.Point(4, 22);
+            this.tabPageСalculation.Name = "tabPageСalculation";
+            this.tabPageСalculation.Padding = new System.Windows.Forms.Padding(3);
+            this.tabPageСalculation.Size = new System.Drawing.Size(874, 433);
+            this.tabPageСalculation.TabIndex = 1;
+            this.tabPageСalculation.Text = "Расчеты и графики";
+            this.tabPageСalculation.UseVisualStyleBackColor = true;
+            // 
+            // splitContainer4
+            // 
+            this.splitContainer4.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.splitContainer4.Location = new System.Drawing.Point(3, 3);
+            this.splitContainer4.Name = "splitContainer4";
+            // 
+            // splitContainer4.Panel1
+            // 
+            this.splitContainer4.Panel1.Controls.Add(this.comboBoxSelectBox2);
+            this.splitContainer4.Panel1.Controls.Add(this.label23);
+            this.splitContainer4.Panel1.Controls.Add(this.dataGridView2);
+            this.splitContainer4.Panel1.Controls.Add(this.label19);
+            this.splitContainer4.Panel1.Controls.Add(this.dataGridView3);
+            this.splitContainer4.Panel1.Controls.Add(this.label20);
+            // 
+            // splitContainer4.Panel2
+            // 
+            this.splitContainer4.Panel2.Controls.Add(this.tabControl3);
+            this.splitContainer4.Size = new System.Drawing.Size(868, 427);
+            this.splitContainer4.SplitterDistance = 289;
+            this.splitContainer4.TabIndex = 0;
+            // 
+            // comboBoxSelectBox2
+            // 
+            this.comboBoxSelectBox2.FormattingEnabled = true;
+            this.comboBoxSelectBox2.Location = new System.Drawing.Point(15, 25);
+            this.comboBoxSelectBox2.Name = "comboBoxSelectBox2";
+            this.comboBoxSelectBox2.Size = new System.Drawing.Size(256, 21);
+            this.comboBoxSelectBox2.TabIndex = 7;
+            this.comboBoxSelectBox2.SelectedIndexChanged += new System.EventHandler(this.comboBoxSelectBox2_SelectedIndexChanged);
+            // 
+            // label23
+            // 
+            this.label23.AutoSize = true;
+            this.label23.ForeColor = System.Drawing.SystemColors.ActiveCaptionText;
+            this.label23.Location = new System.Drawing.Point(12, 9);
+            this.label23.Name = "label23";
+            this.label23.Size = new System.Drawing.Size(84, 13);
+            this.label23.TabIndex = 6;
+            this.label23.Text = "Выберите блок";
+            // 
+            // dataGridView2
+            // 
+            this.dataGridView2.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
+            this.dataGridView2.Location = new System.Drawing.Point(15, 250);
+            this.dataGridView2.Name = "dataGridView2";
+            this.dataGridView2.Size = new System.Drawing.Size(256, 150);
+            this.dataGridView2.TabIndex = 4;
+            // 
+            // label19
+            // 
+            this.label19.AutoSize = true;
+            this.label19.ForeColor = System.Drawing.SystemColors.ActiveCaptionText;
+            this.label19.Location = new System.Drawing.Point(23, 234);
+            this.label19.Name = "label19";
+            this.label19.Size = new System.Drawing.Size(169, 13);
+            this.label19.TabIndex = 5;
+            this.label19.Text = "Мониторинг состояния объекта";
+            // 
+            // dataGridView3
+            // 
+            this.dataGridView3.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
+            this.dataGridView3.Location = new System.Drawing.Point(15, 81);
+            this.dataGridView3.Name = "dataGridView3";
+            this.dataGridView3.Size = new System.Drawing.Size(256, 150);
+            this.dataGridView3.TabIndex = 2;
+            // 
+            // label20
+            // 
+            this.label20.AutoSize = true;
+            this.label20.ForeColor = System.Drawing.SystemColors.ActiveCaptionText;
+            this.label20.Location = new System.Drawing.Point(23, 65);
+            this.label20.Name = "label20";
+            this.label20.Size = new System.Drawing.Size(120, 13);
+            this.label20.TabIndex = 3;
+            this.label20.Text = "Фазовые координаты";
+            // 
+            // tabControl3
+            // 
+            this.tabControl3.Controls.Add(this.tabPageSecondPhaseTrack);
+            this.tabControl3.Controls.Add(this.tabPageSecondFunc);
+            this.tabControl3.Location = new System.Drawing.Point(3, 3);
+            this.tabControl3.Name = "tabControl3";
+            this.tabControl3.SelectedIndex = 0;
+            this.tabControl3.Size = new System.Drawing.Size(569, 421);
+            this.tabControl3.TabIndex = 0;
+            // 
+            // tabPageSecondPhaseTrack
+            // 
+            this.tabPageSecondPhaseTrack.Controls.Add(this.checkBoxAPlimitForecast);
+            this.tabPageSecondPhaseTrack.Controls.Add(this.checkBoxAlimitForecast);
+            this.tabPageSecondPhaseTrack.Controls.Add(this.checkBoxAMlimitForecast);
+            this.tabPageSecondPhaseTrack.Controls.Add(this.checkBoxAPlimit);
+            this.tabPageSecondPhaseTrack.Controls.Add(this.checkBoxAlimit);
+            this.tabPageSecondPhaseTrack.Controls.Add(this.checkBoxAMlimit);
+            this.tabPageSecondPhaseTrack.Controls.Add(this.buttonClearAllSecond);
+            this.tabPageSecondPhaseTrack.Controls.Add(this.label21);
+            this.tabPageSecondPhaseTrack.Controls.Add(this.chartA);
+            this.tabPageSecondPhaseTrack.Location = new System.Drawing.Point(4, 22);
+            this.tabPageSecondPhaseTrack.Name = "tabPageSecondPhaseTrack";
+            this.tabPageSecondPhaseTrack.Padding = new System.Windows.Forms.Padding(3);
+            this.tabPageSecondPhaseTrack.Size = new System.Drawing.Size(561, 395);
+            this.tabPageSecondPhaseTrack.TabIndex = 0;
+            this.tabPageSecondPhaseTrack.Text = "Фазовая траектория a(µ)";
+            this.tabPageSecondPhaseTrack.UseVisualStyleBackColor = true;
+            // 
+            // checkBoxAPlimitForecast
+            // 
+            this.checkBoxAPlimitForecast.AutoSize = true;
+            this.checkBoxAPlimitForecast.ForeColor = System.Drawing.SystemColors.ActiveCaptionText;
+            this.checkBoxAPlimitForecast.Location = new System.Drawing.Point(120, 310);
+            this.checkBoxAPlimitForecast.Name = "checkBoxAPlimitForecast";
+            this.checkBoxAPlimitForecast.Size = new System.Drawing.Size(96, 17);
+            this.checkBoxAPlimitForecast.TabIndex = 17;
+            this.checkBoxAPlimitForecast.Text = "Прогноз a(µ)+";
+            this.checkBoxAPlimitForecast.UseVisualStyleBackColor = true;
+            this.checkBoxAPlimitForecast.CheckedChanged += new System.EventHandler(this.checkBoxAPlimitForecast_CheckedChanged);
+            // 
+            // checkBoxAlimitForecast
+            // 
+            this.checkBoxAlimitForecast.AutoSize = true;
+            this.checkBoxAlimitForecast.ForeColor = System.Drawing.SystemColors.ActiveCaptionText;
+            this.checkBoxAlimitForecast.Location = new System.Drawing.Point(120, 287);
+            this.checkBoxAlimitForecast.Name = "checkBoxAlimitForecast";
+            this.checkBoxAlimitForecast.Size = new System.Drawing.Size(90, 17);
+            this.checkBoxAlimitForecast.TabIndex = 16;
+            this.checkBoxAlimitForecast.Text = "Прогноз a(µ)";
+            this.checkBoxAlimitForecast.UseVisualStyleBackColor = true;
+            this.checkBoxAlimitForecast.CheckedChanged += new System.EventHandler(this.checkBoxAlimitForecast_CheckedChanged);
+            // 
+            // checkBoxAMlimitForecast
+            // 
+            this.checkBoxAMlimitForecast.AutoSize = true;
+            this.checkBoxAMlimitForecast.ForeColor = System.Drawing.SystemColors.ActiveCaptionText;
+            this.checkBoxAMlimitForecast.Location = new System.Drawing.Point(120, 264);
+            this.checkBoxAMlimitForecast.Name = "checkBoxAMlimitForecast";
+            this.checkBoxAMlimitForecast.Size = new System.Drawing.Size(93, 17);
+            this.checkBoxAMlimitForecast.TabIndex = 15;
+            this.checkBoxAMlimitForecast.Text = "Прогноз a(µ)-";
+            this.checkBoxAMlimitForecast.UseVisualStyleBackColor = true;
+            this.checkBoxAMlimitForecast.CheckedChanged += new System.EventHandler(this.checkBoxAMlimitForecast_CheckedChanged);
+            // 
+            // checkBoxAPlimit
+            // 
+            this.checkBoxAPlimit.AutoSize = true;
+            this.checkBoxAPlimit.ForeColor = System.Drawing.SystemColors.ActiveCaptionText;
+            this.checkBoxAPlimit.Location = new System.Drawing.Point(34, 310);
+            this.checkBoxAPlimit.Name = "checkBoxAPlimit";
+            this.checkBoxAPlimit.Size = new System.Drawing.Size(50, 17);
+            this.checkBoxAPlimit.TabIndex = 14;
+            this.checkBoxAPlimit.Text = "a(µ)+";
+            this.checkBoxAPlimit.UseVisualStyleBackColor = true;
+            this.checkBoxAPlimit.CheckedChanged += new System.EventHandler(this.checkBoxAPlimit_CheckedChanged);
+            // 
+            // checkBoxAlimit
+            // 
+            this.checkBoxAlimit.AutoSize = true;
+            this.checkBoxAlimit.ForeColor = System.Drawing.SystemColors.ActiveCaptionText;
+            this.checkBoxAlimit.Location = new System.Drawing.Point(34, 287);
+            this.checkBoxAlimit.Name = "checkBoxAlimit";
+            this.checkBoxAlimit.Size = new System.Drawing.Size(44, 17);
+            this.checkBoxAlimit.TabIndex = 13;
+            this.checkBoxAlimit.Text = "a(µ)";
+            this.checkBoxAlimit.UseVisualStyleBackColor = true;
+            this.checkBoxAlimit.CheckedChanged += new System.EventHandler(this.checkBoxAlimit_CheckedChanged);
+            // 
+            // checkBoxAMlimit
+            // 
+            this.checkBoxAMlimit.AutoSize = true;
+            this.checkBoxAMlimit.ForeColor = System.Drawing.SystemColors.ActiveCaptionText;
+            this.checkBoxAMlimit.Location = new System.Drawing.Point(34, 264);
+            this.checkBoxAMlimit.Name = "checkBoxAMlimit";
+            this.checkBoxAMlimit.Size = new System.Drawing.Size(47, 17);
+            this.checkBoxAMlimit.TabIndex = 12;
+            this.checkBoxAMlimit.Text = "a(µ)-";
+            this.checkBoxAMlimit.UseVisualStyleBackColor = true;
+            this.checkBoxAMlimit.CheckedChanged += new System.EventHandler(this.checkBoxAMlimit_CheckedChanged);
+            // 
+            // buttonClearAllSecond
+            // 
+            this.buttonClearAllSecond.ForeColor = System.Drawing.SystemColors.ActiveCaptionText;
+            this.buttonClearAllSecond.Location = new System.Drawing.Point(401, 271);
+            this.buttonClearAllSecond.Name = "buttonClearAllSecond";
+            this.buttonClearAllSecond.Size = new System.Drawing.Size(134, 47);
+            this.buttonClearAllSecond.TabIndex = 11;
+            this.buttonClearAllSecond.Text = "Убрать все";
+            this.buttonClearAllSecond.UseVisualStyleBackColor = true;
+            this.buttonClearAllSecond.Click += new System.EventHandler(this.buttonClearAllSecond_Click);
+            // 
+            // label21
+            // 
+            this.label21.AutoSize = true;
+            this.label21.ForeColor = System.Drawing.SystemColors.ActiveCaptionText;
+            this.label21.Location = new System.Drawing.Point(21, 234);
+            this.label21.Name = "label21";
+            this.label21.Size = new System.Drawing.Size(118, 13);
+            this.label21.TabIndex = 10;
+            this.label21.Text = "Параметры графиков";
+            // 
+            // chartA
+            // 
+            chartArea29.Name = "ChartArea1";
+            this.chartA.ChartAreas.Add(chartArea29);
+            legend29.Name = "Legend1";
+            this.chartA.Legends.Add(legend29);
+            this.chartA.Location = new System.Drawing.Point(6, 6);
+            this.chartA.Name = "chartA";
+            series29.ChartArea = "ChartArea1";
+            series29.Legend = "Legend1";
+            series29.Name = "Series1";
+            this.chartA.Series.Add(series29);
+            this.chartA.Size = new System.Drawing.Size(552, 221);
+            this.chartA.TabIndex = 9;
+            this.chartA.Text = "chart1";
+            // 
+            // tabPageSecondFunc
+            // 
+            this.tabPageSecondFunc.Controls.Add(this.checkBoxFPlimitForecast);
+            this.tabPageSecondFunc.Controls.Add(this.checkBoxFlimitForecast);
+            this.tabPageSecondFunc.Controls.Add(this.checkBoxFMlimitForecast);
+            this.tabPageSecondFunc.Controls.Add(this.checkBoxFPlimit);
+            this.tabPageSecondFunc.Controls.Add(this.checkBoxFlimit);
+            this.tabPageSecondFunc.Controls.Add(this.checkBoxFMlimit);
+            this.tabPageSecondFunc.Controls.Add(this.buttonClearAllSecond2);
+            this.tabPageSecondFunc.Controls.Add(this.label22);
+            this.tabPageSecondFunc.Controls.Add(this.chartF);
+            this.tabPageSecondFunc.Location = new System.Drawing.Point(4, 22);
+            this.tabPageSecondFunc.Name = "tabPageSecondFunc";
+            this.tabPageSecondFunc.Padding = new System.Windows.Forms.Padding(3);
+            this.tabPageSecondFunc.Size = new System.Drawing.Size(561, 395);
+            this.tabPageSecondFunc.TabIndex = 1;
+            this.tabPageSecondFunc.Text = "Функция µ(t)";
+            this.tabPageSecondFunc.UseVisualStyleBackColor = true;
+            // 
+            // checkBoxFPlimitForecast
+            // 
+            this.checkBoxFPlimitForecast.AutoSize = true;
+            this.checkBoxFPlimitForecast.ForeColor = System.Drawing.SystemColors.ActiveCaptionText;
+            this.checkBoxFPlimitForecast.Location = new System.Drawing.Point(117, 307);
+            this.checkBoxFPlimitForecast.Name = "checkBoxFPlimitForecast";
+            this.checkBoxFPlimitForecast.Size = new System.Drawing.Size(93, 17);
+            this.checkBoxFPlimitForecast.TabIndex = 29;
+            this.checkBoxFPlimitForecast.Text = "Прогноз µ(t)+";
+            this.checkBoxFPlimitForecast.UseVisualStyleBackColor = true;
+            // 
+            // checkBoxFlimitForecast
+            // 
+            this.checkBoxFlimitForecast.AutoSize = true;
+            this.checkBoxFlimitForecast.ForeColor = System.Drawing.SystemColors.ActiveCaptionText;
+            this.checkBoxFlimitForecast.Location = new System.Drawing.Point(117, 284);
+            this.checkBoxFlimitForecast.Name = "checkBoxFlimitForecast";
+            this.checkBoxFlimitForecast.Size = new System.Drawing.Size(87, 17);
+            this.checkBoxFlimitForecast.TabIndex = 28;
+            this.checkBoxFlimitForecast.Text = "Прогноз µ(t)";
+            this.checkBoxFlimitForecast.UseVisualStyleBackColor = true;
+            // 
+            // checkBoxFMlimitForecast
+            // 
+            this.checkBoxFMlimitForecast.AutoSize = true;
+            this.checkBoxFMlimitForecast.ForeColor = System.Drawing.SystemColors.ActiveCaptionText;
+            this.checkBoxFMlimitForecast.Location = new System.Drawing.Point(117, 261);
+            this.checkBoxFMlimitForecast.Name = "checkBoxFMlimitForecast";
+            this.checkBoxFMlimitForecast.Size = new System.Drawing.Size(90, 17);
+            this.checkBoxFMlimitForecast.TabIndex = 27;
+            this.checkBoxFMlimitForecast.Text = "Прогноз µ(t)-";
+            this.checkBoxFMlimitForecast.UseVisualStyleBackColor = true;
+            // 
+            // checkBoxFPlimit
+            // 
+            this.checkBoxFPlimit.AutoSize = true;
+            this.checkBoxFPlimit.ForeColor = System.Drawing.SystemColors.ActiveCaptionText;
+            this.checkBoxFPlimit.Location = new System.Drawing.Point(31, 307);
+            this.checkBoxFPlimit.Name = "checkBoxFPlimit";
+            this.checkBoxFPlimit.Size = new System.Drawing.Size(47, 17);
+            this.checkBoxFPlimit.TabIndex = 26;
+            this.checkBoxFPlimit.Text = "µ(t)+";
+            this.checkBoxFPlimit.UseVisualStyleBackColor = true;
+            // 
+            // checkBoxFlimit
+            // 
+            this.checkBoxFlimit.AutoSize = true;
+            this.checkBoxFlimit.ForeColor = System.Drawing.SystemColors.ActiveCaptionText;
+            this.checkBoxFlimit.Location = new System.Drawing.Point(31, 284);
+            this.checkBoxFlimit.Name = "checkBoxFlimit";
+            this.checkBoxFlimit.Size = new System.Drawing.Size(41, 17);
+            this.checkBoxFlimit.TabIndex = 25;
+            this.checkBoxFlimit.Text = "µ(t)";
+            this.checkBoxFlimit.UseVisualStyleBackColor = true;
+            // 
+            // checkBoxFMlimit
+            // 
+            this.checkBoxFMlimit.AutoSize = true;
+            this.checkBoxFMlimit.ForeColor = System.Drawing.SystemColors.ActiveCaptionText;
+            this.checkBoxFMlimit.Location = new System.Drawing.Point(31, 261);
+            this.checkBoxFMlimit.Name = "checkBoxFMlimit";
+            this.checkBoxFMlimit.Size = new System.Drawing.Size(44, 17);
+            this.checkBoxFMlimit.TabIndex = 24;
+            this.checkBoxFMlimit.Text = "µ(t)-";
+            this.checkBoxFMlimit.UseVisualStyleBackColor = true;
+            // 
+            // buttonClearAllSecond2
+            // 
+            this.buttonClearAllSecond2.ForeColor = System.Drawing.SystemColors.ActiveCaptionText;
+            this.buttonClearAllSecond2.Location = new System.Drawing.Point(398, 268);
+            this.buttonClearAllSecond2.Name = "buttonClearAllSecond2";
+            this.buttonClearAllSecond2.Size = new System.Drawing.Size(140, 47);
+            this.buttonClearAllSecond2.TabIndex = 23;
+            this.buttonClearAllSecond2.Text = "Убрать все";
+            this.buttonClearAllSecond2.UseVisualStyleBackColor = true;
+            this.buttonClearAllSecond2.Click += new System.EventHandler(this.buttonClearAllSecond2_Click);
+            // 
+            // label22
+            // 
+            this.label22.AutoSize = true;
+            this.label22.ForeColor = System.Drawing.SystemColors.ActiveCaptionText;
+            this.label22.Location = new System.Drawing.Point(18, 231);
+            this.label22.Name = "label22";
+            this.label22.Size = new System.Drawing.Size(118, 13);
+            this.label22.TabIndex = 22;
+            this.label22.Text = "Параметры графиков";
+            // 
+            // chartF
+            // 
+            chartArea30.Name = "ChartArea1";
+            this.chartF.ChartAreas.Add(chartArea30);
+            legend30.Name = "Legend1";
+            this.chartF.Legends.Add(legend30);
+            this.chartF.Location = new System.Drawing.Point(3, 3);
+            this.chartF.Name = "chartF";
+            series30.ChartArea = "ChartArea1";
+            series30.Legend = "Legend1";
+            series30.Name = "Series1";
+            this.chartF.Series.Add(series30);
+            this.chartF.Size = new System.Drawing.Size(558, 221);
+            this.chartF.TabIndex = 21;
+            this.chartF.Text = "chart1";
             // 
             // tabFirst
             // 
@@ -347,16 +896,16 @@
             // 
             // chartPhase
             // 
-            chartArea1.Name = "ChartArea1";
-            this.chartPhase.ChartAreas.Add(chartArea1);
-            legend1.Name = "Legend1";
-            this.chartPhase.Legends.Add(legend1);
+            chartArea31.Name = "ChartArea1";
+            this.chartPhase.ChartAreas.Add(chartArea31);
+            legend31.Name = "Legend1";
+            this.chartPhase.Legends.Add(legend31);
             this.chartPhase.Location = new System.Drawing.Point(6, 6);
             this.chartPhase.Name = "chartPhase";
-            series1.ChartArea = "ChartArea1";
-            series1.Legend = "Legend1";
-            series1.Name = "Series1";
-            this.chartPhase.Series.Add(series1);
+            series31.ChartArea = "ChartArea1";
+            series31.Legend = "Legend1";
+            series31.Name = "Series1";
+            this.chartPhase.Series.Add(series31);
             this.chartPhase.Size = new System.Drawing.Size(565, 221);
             this.chartPhase.TabIndex = 0;
             this.chartPhase.Text = "chart1";
@@ -419,6 +968,7 @@
             this.checkBoxMuTpForecast.TabIndex = 20;
             this.checkBoxMuTpForecast.Text = "Прогноз µ(t)+";
             this.checkBoxMuTpForecast.UseVisualStyleBackColor = true;
+            this.checkBoxMuTpForecast.CheckedChanged += new System.EventHandler(this.checkBoxMuTpForecast_CheckedChanged);
             // 
             // checkBoxMuTForecast
             // 
@@ -429,6 +979,7 @@
             this.checkBoxMuTForecast.TabIndex = 19;
             this.checkBoxMuTForecast.Text = "Прогноз µ(t)";
             this.checkBoxMuTForecast.UseVisualStyleBackColor = true;
+            this.checkBoxMuTForecast.CheckedChanged += new System.EventHandler(this.checkBoxMuTForecast_CheckedChanged);
             // 
             // checkBoxMuTmForecast
             // 
@@ -439,6 +990,7 @@
             this.checkBoxMuTmForecast.TabIndex = 18;
             this.checkBoxMuTmForecast.Text = "Прогноз µ(t)-";
             this.checkBoxMuTmForecast.UseVisualStyleBackColor = true;
+            this.checkBoxMuTmForecast.CheckedChanged += new System.EventHandler(this.checkBoxMuTmForecast_CheckedChanged);
             // 
             // checkBoxMuTp
             // 
@@ -449,6 +1001,7 @@
             this.checkBoxMuTp.TabIndex = 17;
             this.checkBoxMuTp.Text = "µ(t)+";
             this.checkBoxMuTp.UseVisualStyleBackColor = true;
+            this.checkBoxMuTp.CheckedChanged += new System.EventHandler(this.checkBoxMuTp_CheckedChanged);
             // 
             // checkBoxMuT
             // 
@@ -459,6 +1012,7 @@
             this.checkBoxMuT.TabIndex = 16;
             this.checkBoxMuT.Text = "µ(t)";
             this.checkBoxMuT.UseVisualStyleBackColor = true;
+            this.checkBoxMuT.CheckedChanged += new System.EventHandler(this.checkBoxMuT_CheckedChanged);
             // 
             // checkBoxMuTm
             // 
@@ -469,6 +1023,7 @@
             this.checkBoxMuTm.TabIndex = 15;
             this.checkBoxMuTm.Text = "µ(t)-";
             this.checkBoxMuTm.UseVisualStyleBackColor = true;
+            this.checkBoxMuTm.CheckedChanged += new System.EventHandler(this.checkBoxMuTm_CheckedChanged);
             // 
             // buttonCleatAll2
             // 
@@ -491,16 +1046,16 @@
             // 
             // chartFunc
             // 
-            chartArea2.Name = "ChartArea1";
-            this.chartFunc.ChartAreas.Add(chartArea2);
-            legend2.Name = "Legend1";
-            this.chartFunc.Legends.Add(legend2);
+            chartArea32.Name = "ChartArea1";
+            this.chartFunc.ChartAreas.Add(chartArea32);
+            legend32.Name = "Legend1";
+            this.chartFunc.Legends.Add(legend32);
             this.chartFunc.Location = new System.Drawing.Point(6, 6);
             this.chartFunc.Name = "chartFunc";
-            series2.ChartArea = "ChartArea1";
-            series2.Legend = "Legend1";
-            series2.Name = "Series1";
-            this.chartFunc.Series.Add(series2);
+            series32.ChartArea = "ChartArea1";
+            series32.Legend = "Legend1";
+            series32.Name = "Series1";
+            this.chartFunc.Series.Add(series32);
             this.chartFunc.Size = new System.Drawing.Size(565, 221);
             this.chartFunc.TabIndex = 12;
             this.chartFunc.Text = "chart1";
@@ -722,6 +1277,31 @@
             this.Name = "Form1";
             this.Text = "Автоматизированная система мониторинга пространственно-временого сосояния техноге" +
     "нного объекта";
+            this.tabSecond.ResumeLayout(false);
+            this.tabControl2.ResumeLayout(false);
+            this.tabPageDistribution.ResumeLayout(false);
+            this.splitContainer3.Panel1.ResumeLayout(false);
+            this.splitContainer3.Panel1.PerformLayout();
+            this.splitContainer3.Panel2.ResumeLayout(false);
+            this.splitContainer3.Panel2.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.splitContainer3)).EndInit();
+            this.splitContainer3.ResumeLayout(false);
+            ((System.ComponentModel.ISupportInitialize)(this.pictureBoxObject)).EndInit();
+            this.tabPageСalculation.ResumeLayout(false);
+            this.splitContainer4.Panel1.ResumeLayout(false);
+            this.splitContainer4.Panel1.PerformLayout();
+            this.splitContainer4.Panel2.ResumeLayout(false);
+            ((System.ComponentModel.ISupportInitialize)(this.splitContainer4)).EndInit();
+            this.splitContainer4.ResumeLayout(false);
+            ((System.ComponentModel.ISupportInitialize)(this.dataGridView2)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.dataGridView3)).EndInit();
+            this.tabControl3.ResumeLayout(false);
+            this.tabPageSecondPhaseTrack.ResumeLayout(false);
+            this.tabPageSecondPhaseTrack.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.chartA)).EndInit();
+            this.tabPageSecondFunc.ResumeLayout(false);
+            this.tabPageSecondFunc.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.chartF)).EndInit();
             this.tabFirst.ResumeLayout(false);
             this.splitContainer2.Panel1.ResumeLayout(false);
             this.splitContainer2.Panel1.PerformLayout();
@@ -808,6 +1388,47 @@
         private System.Windows.Forms.Button buttonCleatAll2;
         private System.Windows.Forms.Label label14;
         private System.Windows.Forms.DataVisualization.Charting.Chart chartFunc;
+        private System.Windows.Forms.TabControl tabControl2;
+        private System.Windows.Forms.TabPage tabPageDistribution;
+        private System.Windows.Forms.TabPage tabPageСalculation;
+        private System.Windows.Forms.SplitContainer splitContainer3;
+        private System.Windows.Forms.Label label15;
+        private System.Windows.Forms.ComboBox comboBoxSelectBox;
+        private System.Windows.Forms.Label label17;
+        private System.Windows.Forms.Label label16;
+        private System.Windows.Forms.ListBox listBoxBlock;
+        private System.Windows.Forms.ListBox listBoxAll;
+        private System.Windows.Forms.Button buttonSaveBlock;
+        private System.Windows.Forms.Label label18;
+        private System.Windows.Forms.PictureBox pictureBoxObject;
+        private System.Windows.Forms.SplitContainer splitContainer4;
+        private System.Windows.Forms.DataGridView dataGridView2;
+        private System.Windows.Forms.Label label19;
+        private System.Windows.Forms.DataGridView dataGridView3;
+        private System.Windows.Forms.Label label20;
+        private System.Windows.Forms.TabControl tabControl3;
+        private System.Windows.Forms.TabPage tabPageSecondPhaseTrack;
+        private System.Windows.Forms.TabPage tabPageSecondFunc;
+        private System.Windows.Forms.CheckBox checkBoxAPlimitForecast;
+        private System.Windows.Forms.CheckBox checkBoxAlimitForecast;
+        private System.Windows.Forms.CheckBox checkBoxAMlimitForecast;
+        private System.Windows.Forms.CheckBox checkBoxAPlimit;
+        private System.Windows.Forms.CheckBox checkBoxAlimit;
+        private System.Windows.Forms.CheckBox checkBoxAMlimit;
+        private System.Windows.Forms.Button buttonClearAllSecond;
+        private System.Windows.Forms.Label label21;
+        private System.Windows.Forms.DataVisualization.Charting.Chart chartA;
+        private System.Windows.Forms.CheckBox checkBoxFPlimitForecast;
+        private System.Windows.Forms.CheckBox checkBoxFlimitForecast;
+        private System.Windows.Forms.CheckBox checkBoxFMlimitForecast;
+        private System.Windows.Forms.CheckBox checkBoxFPlimit;
+        private System.Windows.Forms.CheckBox checkBoxFlimit;
+        private System.Windows.Forms.CheckBox checkBoxFMlimit;
+        private System.Windows.Forms.Button buttonClearAllSecond2;
+        private System.Windows.Forms.Label label22;
+        private System.Windows.Forms.DataVisualization.Charting.Chart chartF;
+        private System.Windows.Forms.ComboBox comboBoxSelectBox2;
+        private System.Windows.Forms.Label label23;
     }
 }
 
