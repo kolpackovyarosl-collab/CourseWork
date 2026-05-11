@@ -83,6 +83,7 @@
       <AutoGen>True</AutoGen>
       <DependentUpon>Resources.resx</DependentUpon>
     </Compile>
+    <None Include="data\Вариант 15\Вариант15 - Копировать.sqlite" />
     <None Include="data\Вариант 15\Вариант15.sqlite" />
     <None Include="data\Вариант 15\Данные.csv" />
     <None Include="data\Вариант 15\исходники\Вариант 15\Вариант15.sqlite" />

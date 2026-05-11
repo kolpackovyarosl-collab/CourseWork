@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Data;
+using System.Data.Entity.Core.Common.CommandTrees.ExpressionBuilder;
 using System.Data.SQLite;
 using System.Drawing;
 using System.Globalization;
@@ -449,11 +450,7 @@ namespace CourseWork
                 using (var cmd = new SQLiteCommand(
                     "SELECT IFNULL(MAX(Эпоха), -1) FROM [Координаты Z контрольных точек]", conn))
                 {
-                    object result = cmd.ExecuteScalar();
-
-                    int maxEpoch = Convert.ToInt32(result);
-
-                    nextEpoch = maxEpoch + 1;
+                    nextEpoch = Convert.ToInt32(cmd.ExecuteScalar()) + 1;
                 }
 
                 using (var insert = new SQLiteCommand(conn))
@@ -475,30 +472,31 @@ namespace CourseWork
 
                     insert.Parameters.AddWithValue("@epoch", nextEpoch);
 
+                    double dt = 1.0;
+
                     for (int i = 1; i <= 20; i++)
                     {
                         string col = i.ToString();
 
+                        double prev = Convert.ToDouble(source.Rows[n - 1][col]);
+
+                        // ✔ вычисляем средний шаг (скорость)
                         double sum = 0;
-
-                        for (int k = 0; k < n - 1; k++)
+                        for (int k = 1; k < n; k++)
                         {
-                            double z1 = Convert.ToDouble(source.Rows[k][col]);
-                            double z2 = Convert.ToDouble(source.Rows[k + 1][col]);
-
-                            double diff = z2 - z1;
-                            sum += diff * diff;
+                            double z1 = Convert.ToDouble(source.Rows[k - 1][col]);
+                            double z2 = Convert.ToDouble(source.Rows[k][col]);
+                            sum += (z2 - z1);
                         }
 
-                        double d = Math.Sqrt(sum / (n - 1));
+                        double velocity = sum / (n - 1);
 
-                        double prevZ = Convert.ToDouble(source.Rows[n - 1][col]);
+                        // ✔ добавляем движение + инерцию
+                        double noise = (random.NextDouble() * 2 - 1) * 0.00001;
 
-                        double rnd = (random.NextDouble() * 2.0 - 1.0) * d;
+                        double newZ = prev + velocity * dt + noise;
 
-                        double newZ = Math.Round(prevZ + rnd, 4);
-
-                        insert.Parameters.AddWithValue($"@c{i}", newZ);
+                        insert.Parameters.AddWithValue($"@c{i}", Math.Round(newZ, 6));
                     }
 
                     insert.ExecuteNonQuery();
@@ -510,9 +508,6 @@ namespace CourseWork
 
         private void RecalculatePhase()
         {
-            double alpha = prevA;
-            double beta = 0.2;
-
             using (var conn = GetConnection())
             {
                 conn.Open();
@@ -559,6 +554,7 @@ namespace CourseWork
                 phase.Columns.Add("µ прогноз");
                 phase.Columns.Add("µ прогноз-");
                 phase.Columns.Add("µ прогноз+");
+
                 phase.Columns.Add("a прогноз");
                 phase.Columns.Add("a прогноз-");
                 phase.Columns.Add("a прогноз+");
@@ -570,8 +566,12 @@ namespace CourseWork
                 condition.Columns.Add("Состояние");
                 condition.Columns.Add("Декомпозиция");
 
+                // ✔ ХРАНИМ RAW И СГЛАЖЕННОЕ ОТДЕЛЬНО
+                Dictionary<string, double> prevRaw = new Dictionary<string, double>();
                 Dictionary<string, double> prevMu = new Dictionary<string, double>();
-                Dictionary<string, double> prevA = new Dictionary<string, double>();
+                Dictionary<string, double> prevTrend = new Dictionary<string, double>();
+
+                double smoothing = 0.2; // слабое сглаживание (ВАЖНО)
 
                 for (int rowIndex = 0; rowIndex < dt.Rows.Count; rowIndex++)
                 {
@@ -579,39 +579,79 @@ namespace CourseWork
 
                     double muSum = 0;
                     double aSum = 0;
-                    int validCount = 0;
+                    int valid = 0;
 
                     for (int i = 1; i <= count; i++)
                     {
                         string col = i.ToString();
-                        if (!dt.Columns.Contains(col)) continue;
-                        if (row[col] == DBNull.Value) continue;
 
-                        double x = Convert.ToDouble(row[col]);
+                        if (!dt.Columns.Contains(col))
+                            continue;
 
-                        double prevMuVal = prevMu.ContainsKey(col) ? prevMu[col] : x;
-                        double prevAVal = prevA.ContainsKey(col) ? prevA[col] : 0;
+                        if (row[col] == DBNull.Value)
+                            continue;
 
-                        double mu = alpha * x + (1 - alpha) * prevMuVal;
+                        double raw = Convert.ToDouble(row[col]); // ✔ RAW сигнал
 
-                        double a = beta * (mu - prevMuVal);
+                        double mu;
+                        double trend;
 
+                        // ✔ первый шаг
+                        if (!prevRaw.ContainsKey(col))
+                        {
+                            mu = raw;
+                            trend = 0;
+                        }
+                        else
+                        {
+                            double oldRaw = prevRaw[col];
+                            double oldMu = prevMu[col];
+
+                            // ✔ сглаживание (НЕ убивает скачок полностью)
+                            mu = oldMu + (raw - oldMu) * smoothing;
+
+                            // ✔ тренд по RAW (важно для скачка)
+                            trend = raw - oldRaw;
+                        }
+
+                        // ✔ детектор скачка
+                        double prev = prevRaw.ContainsKey(col) ? prevRaw[col] : raw;
+                        double jump = Math.Abs(raw - prev);
+                        bool isJump = jump > 0.0005;
+
+                        if (isJump)
+                        {
+                            mu = raw;     // НЕ сглаживаем скачок
+                            trend = 0;    // сброс тренда на скачке
+                        }
+
+                        prevRaw[col] = raw;
                         prevMu[col] = mu;
-                        prevA[col] = a;
-
-                        prevMu[col] = mu;
-                        prevA[col] = a;
+                        prevTrend[col] = trend;
 
                         muSum += mu;
-                        aSum += a;
-                        validCount++;
+                        aSum += trend;
+                        valid++;
                     }
 
-                    if (validCount == 0) continue;
+                    if (valid == 0)
+                        continue;
 
-                    double muAvg = muSum / validCount;
-                    double aAvg = aSum / validCount;
+                    double muAvg = muSum / valid;
+                    double aAvg = aSum / valid;
 
+                    double R = A * Eps;
+                    double L = Math.Abs(aAvg);
+
+                    string state =
+                        (L <= R * 0.5) ? "Норма" :
+                        (L <= R) ? "Предупреждение" :
+                        "Авария";
+
+                    string decomp =
+                        (state == "Авария" || Math.Abs(aAvg) > Eps * 2)
+                        ? "Переход на следующий уровень"
+                        : "Уровень стабилен";
 
                     double muPlus = muAvg + A * Eps;
                     double muMinus = muAvg - A * Eps;
@@ -619,58 +659,41 @@ namespace CourseWork
                     double aPlus = aAvg + Eps;
                     double aMinus = aAvg - Eps;
 
-
                     double muForecast = muAvg + aAvg;
                     double muForecastMinus = muForecast - A * Eps;
                     double muForecastPlus = muForecast + A * Eps;
+
                     double aForecast = aAvg;
                     double aForecastMinus = aForecast - Eps;
                     double aForecastPlus = aForecast + Eps;
-
-                    double R = A * Eps;
-                    double L = Math.Abs(muAvg - muForecast);
-
-                    string state;
-
-                    if (L <= R * 0.5)
-                        state = "Норма";
-                    else if (L <= R)
-                        state = "Предупреждение";
-                    else
-                        state = "Авария";
-
-                    string decomp =
-                        (state == "Авария" || Math.Abs(aAvg) > Eps * 2)
-                        ? "Переход на следующий уровень"
-                        : "Уровень стабилен";
-
 
                     DataRow pr = phase.NewRow();
 
                     pr["Цикл"] = rowIndex;
 
-                    pr["µ"] = Math.Round(muAvg, 4);
-                    pr["a"] = Math.Round(aAvg, 4);
+                    pr["µ"] = Math.Round(muAvg, 6);
+                    pr["a"] = Math.Round(aAvg, 6);
 
-                    pr["µ+"] = Math.Round(muPlus, 4);
-                    pr["µ-"] = Math.Round(muMinus, 4);
+                    pr["µ+"] = Math.Round(muPlus, 6);
+                    pr["µ-"] = Math.Round(muMinus, 6);
 
-                    pr["a+"] = Math.Round(aPlus, 4);
-                    pr["a-"] = Math.Round(aMinus, 4);
+                    pr["a+"] = Math.Round(aPlus, 6);
+                    pr["a-"] = Math.Round(aMinus, 6);
 
-                    pr["µ прогноз"] = Math.Round(muForecast, 4);
-                    pr["µ прогноз-"] = Math.Round(muForecastMinus, 4);
-                    pr["µ прогноз+"] = Math.Round(muForecastPlus, 4);
-                    pr["a прогноз"] = Math.Round(aForecast, 4);
-                    pr["a прогноз-"] = Math.Round(aForecastMinus, 4);
-                    pr["a прогноз+"] = Math.Round(aForecastPlus, 4);
+                    pr["µ прогноз"] = Math.Round(muForecast, 6);
+                    pr["µ прогноз-"] = Math.Round(muForecastMinus, 6);
+                    pr["µ прогноз+"] = Math.Round(muForecastPlus, 6);
+
+                    pr["a прогноз"] = Math.Round(aForecast, 6);
+                    pr["a прогноз-"] = Math.Round(aForecastMinus, 6);
+                    pr["a прогноз+"] = Math.Round(aForecastPlus, 6);
 
                     phase.Rows.Add(pr);
 
                     condition.Rows.Add(
                         rowIndex,
-                        Math.Round(R, 4),
-                        Math.Round(L, 4),
+                        Math.Round(R, 6),
+                        Math.Round(L, 6),
                         state,
                         decomp
                     );
@@ -784,6 +807,8 @@ namespace CourseWork
 
                 series.Points.AddXY(x, y);
             }
+            chartA.ChartAreas[0].AxisX.Title = "μ";
+            chartA.ChartAreas[0].AxisY.Title = "a";
 
             chartA.Series.Add(series);
         }
@@ -818,7 +843,8 @@ namespace CourseWork
 
                 series.Points.AddXY(x, y);
             }
-
+            chartF.ChartAreas[0].AxisX.Title = "Цикл";
+            chartF.ChartAreas[0].AxisY.Title = "μ";
             chartF.Series.Add(series);
         }
 
@@ -952,6 +978,8 @@ namespace CourseWork
                 if (mu > maxY) maxY = mu;
             }
 
+            chartFunc.ChartAreas[0].AxisX.Title = "Цикл";
+            chartFunc.ChartAreas[0].AxisY.Title = "μ";
             chartFunc.Series.Add(series);
 
             var area = chartFunc.ChartAreas[0];
@@ -1005,6 +1033,8 @@ namespace CourseWork
 
                 epoch++;
             }
+            chartPhase.ChartAreas[0].AxisX.Title = "μ";
+            chartPhase.ChartAreas[0].AxisY.Title = "a";
 
             chartPhase.Series.Add(series);
         }
